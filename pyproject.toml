@@ -1,0 +1,50 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sparglim"
+description = "sparglim"
+keywords = ["sparglim"]
+requires-python = ">=3.8"
+dependencies = ["pyspark", "findspark", "loguru"]
+dynamic = ["version"]
+classifiers = [
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+]
+[project.optional-dependencies]
+test = ["pytest"]
+magic = ["ipython"]
+k8s = ["kubernetes"]
+all = [
+    "pyspark[pandas_on_spark]",
+    "pyspark[sql]",
+    "pyspark[connect]",
+    "sparglim[magic]",
+    "sparglim[k8s]",
+]
+dev = ["sparglim[all]", "sparglim[test]"]
+
+
+[[project.authors]]
+name = "wh1isper"
+email = "9573586@qq.com"
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.license]
+text = "BSD license"
+
+[project.urls]
+Source = "https://github.com/wh1isper/sparglim"
+
+[tool.check-manifest]
+ignore = [".*"]
+
+[tool.hatch.version]
+path = "sparglim/__init__.py"
