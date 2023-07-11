@@ -1,3 +1,6 @@
+#  Copyright (c) 2023 Wh1isper
+#  Licensed under the BSD 3-Clause License
+
 import os
 from datetime import date, datetime
 
@@ -64,4 +67,4 @@ def test_s3(config_builder: ConfigBuilder):
 
 
 if __name__ == "__main__":
-    pytest.main(["-vvv", _HERE])
+    pytest.main(["-vv", _HERE])

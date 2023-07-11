@@ -1,5 +1,6 @@
 #  Copyright (c) 2023 Wh1isper
-#  Licensed under the BSD 3-Clause License
+#  Licensed under the BSD 3-Clause
+
 from typing import List
 
 from IPython.core.magic import Magics, cell_magic, line_magic, magics_class
