@@ -15,12 +15,12 @@ from sparglim.log import logger
 from sparglim.utils import Singleton
 
 
-def config_deploy_mode(func):
+def config_master(func):
     @wraps(func)
     def wrapper(self, *args, **kwargs):
-        if self.deploy_mode_configured:
+        if self.master_configured:
             raise UnconfigurableError("Deploy mode already configured.")
-        self.deploy_mode_configured = True
+        self.master_configured = True
         return func(self, *args, **kwargs)
 
     return wrapper
@@ -57,14 +57,15 @@ class ConfigBuilder(metaclass=Singleton):
     _k8s = {}
 
     def __init__(self) -> None:
-        self.deploy_mode_configured: bool
+        self.master_configured: bool
         self.default_config: Dict[str, Any]
         self._config: Dict[str, Any]
         self.initialize()
+        self.default_config_func = self.config_local
         self._spark: Optional[SparkSession] = None
 
     def initialize(self) -> None:
-        self.deploy_mode_configured: bool = False
+        self.master_configured: bool = False
         self.default_config = {
             **self._basic,
             **self._s3,
@@ -113,42 +114,68 @@ class ConfigBuilder(metaclass=Singleton):
         self._merge_config(c)
         return self
 
-    def config_s3(self, **custom_config: Dict[str, Any]) -> ConfigBuilder:
-        self._merge_config(self._config_from_env(self._s3))
-        self._merge_config(custom_config)
+    def config_s3(self, custom_config: Optional[Dict[str, Any]] = None) -> ConfigBuilder:
+        if not custom_config:
+            custom_config = dict()
+        self.config(
+            {
+                **self._config_from_env(self._s3),
+                **custom_config,
+            }
+        )
         return self
 
-    @config_deploy_mode
-    def config_local(self, **custom_config: Dict[str, Any]) -> ConfigBuilder:
-        self._merge_config(self._config_from_env(self._local))
-        self._merge_config(custom_config)
+    @config_master
+    def config_local(self, custom_config: Optional[Dict[str, Any]] = None) -> ConfigBuilder:
+        if not custom_config:
+            custom_config = dict()
+        self.config(
+            {
+                **self._config_from_env(self._local),
+                **custom_config,
+            }
+        )
         return self
 
-    @config_deploy_mode
-    def config_k8s(self, **custom_config: Dict[str, Any]) -> ConfigBuilder:
-        self._merge_config(self._config_from_env(self._k8s))
-        self._merge_config(custom_config)
+    @config_master
+    def config_k8s(self, custom_config: Optional[Dict[str, Any]] = None) -> ConfigBuilder:
+        if not custom_config:
+            custom_config = dict()
+        self.config(
+            {
+                **self._config_from_env(self._k8s),
+                **custom_config,
+            }
+        )
         return self
 
-    @config_deploy_mode
-    def config_connect_client(self, **custom_config: Dict[str, Any]) -> ConfigBuilder:
-        self._merge_config(self._config_from_env(self._connect_client))
-        self._merge_config(custom_config)
+    @config_master
+    def config_connect_client(
+        self, custom_config: Optional[Dict[str, Any]] = None
+    ) -> ConfigBuilder:
+        if not custom_config:
+            custom_config = dict()
+        self.config(
+            {
+                **self._config_from_env(self._connect_client),
+                **custom_config,
+            }
+        )
         return self
 
-    @config_deploy_mode
     def config_connect_server(
-        self, mode: Literal["local", "k8s"] = "local", **custom_config: Dict[str, Any]
+        self,
+        mode: Literal["local", "k8s"] = "local",
+        custom_config: Optional[Dict[str, Any]] = None,
     ) -> ConfigBuilder:
         if mode == "local":
-            self._merge_config(self._config_from_env(self._local))
+            self.config_local(custom_config)
         elif mode == "k8s":
-            self._merge_config(self._config_from_env(self._k8s))
+            self.config_k8s(custom_config)
         else:
-            raise ValueError(f"Unknown mode: {mode}")
+            raise UnconfigurableError(f"Unknown mode: {mode}")
 
         self._merge_config(self._config_from_env(self._connect_server))
-        self._merge_config(custom_config)
         return self
 
     def create(self) -> SparkSession:
@@ -159,8 +186,8 @@ class ConfigBuilder(metaclass=Singleton):
         if self._spark:
             return self._spark
 
-        if not self.deploy_mode_configured:
-            self.config_local()
+        if not self.master_configured:
+            self.default_config_func()
 
         self._spark = self.create()
         return self._spark

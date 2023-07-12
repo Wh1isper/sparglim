@@ -51,7 +51,7 @@ def test_deploy_mode(config_builder: ConfigBuilder, mode: str):
     config_builder = config_builder.clear()
     config_mode = getattr(config_builder, f"config_{mode}")
     config_mode()
-    assert config_builder.deploy_mode_configured
+    assert config_builder.master_configured
     with pytest.raises(UnconfigurableError) as e:
         config_mode()
 
@@ -145,7 +145,7 @@ def test_s3(
         "spark.hadoop.fs.s3a.access.key": "convert-access-key",
         "spark.hadoop.fs.s3a.secret.key": "convert-secret-key",
     }
-    config_builder.config_s3(**convert_mapper)
+    config_builder.config_s3(convert_mapper)
     assert_contain(config_builder._config, {**expect_mapper, **convert_mapper})
 
 
