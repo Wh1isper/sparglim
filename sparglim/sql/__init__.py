@@ -9,4 +9,4 @@ def load_ipython_extension(ipython):
 
 
 def unload_ipython_extension(ipython):
-    ConfigBuilder().clear()
+    SparkMagic.clear()

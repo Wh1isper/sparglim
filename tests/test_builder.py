@@ -67,6 +67,17 @@ def test_merge(config_builder: ConfigBuilder):
     assert config_builder._config == {**prev, **to_cover}
 
 
+def test_config(config_builder: ConfigBuilder):
+    prev = config_builder._config.copy()
+    to_merge = {"spark.app.name": "appname"}
+    config_builder.config(to_merge)
+    assert config_builder._config == {**prev, **to_merge}
+
+    to_cover = {"spark.app.name": "appname2"}
+    config_builder.config(to_cover)
+    assert config_builder._config == {**prev, **to_cover}
+
+
 def test_env(config_builder: ConfigBuilder, monkeypatch):
     config_builder = patch_env(config_builder, monkeypatch, {"SPAGLIM_APP_NAME": "testapp"})
     assert config_builder._config["spark.app.name"] == "testapp"
@@ -139,4 +150,4 @@ def test_s3(
 
 
 if __name__ == "__main__":
-    pytest.main(["-vv", _HERE])
+    pytest.main(["-vv", "-s", __file__])

@@ -70,6 +70,7 @@ class ConfigBuilder(metaclass=Singleton):
             **self._s3,
         }
         self._config: Dict[str, Any] = self._config_from_env(self.default_config)
+        logger.debug("Initialized config: {self._config}")
 
     @property
     def spark_config(self) -> SparkConf:
@@ -96,6 +97,7 @@ class ConfigBuilder(metaclass=Singleton):
         return config
 
     def clear(self) -> ConfigBuilder:
+        logger.info("Reinitialize config and stop SparkSession")
         self.initialize()
         if self._spark:
             self._spark.stop()
@@ -106,6 +108,10 @@ class ConfigBuilder(metaclass=Singleton):
         logger.debug(f"Merge config: {c}")
         self._config.update(**c)
         logger.debug(f"Current config: {self._config}")
+
+    def config(self, c: Dict[str, Any]) -> ConfigBuilder:
+        self._merge_config(c)
+        return self
 
     def config_s3(self, **custom_config: Dict[str, Any]) -> ConfigBuilder:
         self._merge_config(self._config_from_env(self._s3))
