@@ -15,17 +15,6 @@ from sparglim.log import logger
 from sparglim.utils import Singleton
 
 
-def config_master(func):
-    @wraps(func)
-    def wrapper(self, *args, **kwargs):
-        if self.master_configured:
-            raise UnconfigurableError("Deploy mode already configured.")
-        self.master_configured = True
-        return func(self, *args, **kwargs)
-
-    return wrapper
-
-
 class ConfigBuilder(metaclass=Singleton):
     _basic = {
         "spark.app.name": ("SPAGLIM_APP_NAME", "Sparglim"),
@@ -49,19 +38,23 @@ class ConfigBuilder(metaclass=Singleton):
         "spark.driver.memory": ("SPARGLIM_LOCAL_MEMORY", "512m"),
     }
     # TODO: config for connect-server mode
-    _connect_client = {}
+    _connect_client = {
+        "spark.remote": ("SPARGLIM_REMOTE", "sc://localhost"),
+    }
     _connect_server = {}
     # TODO: config for k8s
     #       verify volumn mount/secret etc.
     #       Does k8s inject authorization into pod?
-    _k8s = {}
+    _k8s = {
+        "spark.master": ("SPARGLIM_MASTER", "k8s://https://kubernetes.default.svc"),
+    }
 
     def __init__(self) -> None:
         self.master_configured: bool
         self.default_config: Dict[str, Any]
         self._config: Dict[str, Any]
         self.initialize()
-        self.default_config_func = self.config_local
+        self.default_master_config = self.config_local
         self._spark: Optional[SparkSession] = None
 
     def initialize(self) -> None:
@@ -111,6 +104,12 @@ class ConfigBuilder(metaclass=Singleton):
         logger.debug(f"Current config: {self._config}")
 
     def config(self, c: Dict[str, Any]) -> ConfigBuilder:
+        will_config_master = c.get("spark.master") or c.get("spark.remote")
+        if self.master_configured and will_config_master:
+            raise UnconfigurableError("Spark master already configured, try clear() first")
+        if will_config_master:
+            self.master_configured = True
+
         self._merge_config(c)
         return self
 
@@ -125,7 +124,6 @@ class ConfigBuilder(metaclass=Singleton):
         )
         return self
 
-    @config_master
     def config_local(self, custom_config: Optional[Dict[str, Any]] = None) -> ConfigBuilder:
         if not custom_config:
             custom_config = dict()
@@ -137,7 +135,6 @@ class ConfigBuilder(metaclass=Singleton):
         )
         return self
 
-    @config_master
     def config_k8s(self, custom_config: Optional[Dict[str, Any]] = None) -> ConfigBuilder:
         if not custom_config:
             custom_config = dict()
@@ -149,7 +146,6 @@ class ConfigBuilder(metaclass=Singleton):
         )
         return self
 
-    @config_master
     def config_connect_client(
         self, custom_config: Optional[Dict[str, Any]] = None
     ) -> ConfigBuilder:
@@ -187,7 +183,7 @@ class ConfigBuilder(metaclass=Singleton):
             return self._spark
 
         if not self.master_configured:
-            self.default_config_func()
+            self.default_master_config()
 
         self._spark = self.create()
         return self._spark
