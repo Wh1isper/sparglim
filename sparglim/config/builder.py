@@ -57,13 +57,20 @@ class ConfigBuilder(metaclass=Singleton):
     _k8s = {}
 
     def __init__(self) -> None:
+        self.initialize()
+        self.deploy_mode_configured: bool
+        self.default_config: Dict[str, Any]
+        self._config: Dict[str, Any]
+        self.initialize()
+        self._spark: Optional[SparkSession] = None
+
+    def initialize(self) -> None:
         self.deploy_mode_configured: bool = False
         self.default_config = {
             **self._basic,
             **self._s3,
         }
         self._config: Dict[str, Any] = self._config_from_env(self.default_config)
-        self._spark: Optional[SparkSession] = None
 
     @property
     def spark_config(self) -> SparkConf:
@@ -90,7 +97,7 @@ class ConfigBuilder(metaclass=Singleton):
         return config
 
     def clear(self) -> ConfigBuilder:
-        self._config: Dict[str, Any] = self._config_from_env(self._basic)
+        self.initialize()
         if self._spark:
             self._spark.stop()
             self._spark = None
@@ -124,6 +131,7 @@ class ConfigBuilder(metaclass=Singleton):
         self._merge_config(custom_config)
         return self
 
+    @config_deploy_mode
     def config_connect_server(
         self, mode: Literal["local", "k8s"] = "local", **custom_config: Dict[str, Any]
     ) -> ConfigBuilder:

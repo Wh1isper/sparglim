@@ -9,6 +9,7 @@ import pytest
 from pyspark.sql import Row
 
 from sparglim.config import ConfigBuilder
+from sparglim.exceptions import UnconfigurableError
 
 _HERE = os.path.abspath(__file__)
 
@@ -43,6 +44,16 @@ def patch_env(config_builder: ConfigBuilder, monkeypatch, mapper: Dict[str, str]
     for k, v in mapper.items():
         monkeypatch.setenv(k, v)
     return config_builder.clear()
+
+
+@pytest.mark.parametrize("mode", ["local", "k8s", "connect_client", "connect_server"])
+def test_deploy_mode(config_builder: ConfigBuilder, mode: str):
+    config_builder = config_builder.clear()
+    config_mode = getattr(config_builder, f"config_{mode}")
+    config_mode()
+    assert config_builder.deploy_mode_configured
+    with pytest.raises(UnconfigurableError) as e:
+        config_mode()
 
 
 def test_merge(config_builder: ConfigBuilder):
