@@ -16,7 +16,6 @@ classifiers = [
     'Programming Language :: Python :: 3.10',
 ]
 [project.optional-dependencies]
-test = ["pytest"]
 magic = ["ipython"]
 k8s = ["kubernetes"]
 all = [
@@ -26,6 +25,7 @@ all = [
     "sparglim[magic]",
     "sparglim[k8s]",
 ]
+test = ["sparglim[all]", "pytest", "pytest-cov"]
 dev = ["sparglim[all]", "sparglim[test]"]
 
 
