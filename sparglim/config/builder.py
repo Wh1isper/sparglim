@@ -57,7 +57,6 @@ class ConfigBuilder(metaclass=Singleton):
     _k8s = {}
 
     def __init__(self) -> None:
-        self.initialize()
         self.deploy_mode_configured: bool
         self.default_config: Dict[str, Any]
         self._config: Dict[str, Any]
