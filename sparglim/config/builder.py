@@ -32,11 +32,15 @@ class ConfigBuilder(metaclass=Singleton):
         "spark.submit.deployMode": ("SPAGLIM_DEPLOY_MODE", "client"),
         "spark.scheduler.mode": ("SPARGLIM_SCHEDULER_MODE", "FAIR"),
     }
+    # FIXME: S3 secret(and any other) should not be printed
     _s3 = {
-        "spark.hadoop.fs.s3a.access.key": ("S3_ACCESS_KEY", None),
-        "spark.hadoop.fs.s3a.secret.key": ("S3_SECRET_KEY", None),
+        "spark.hadoop.fs.s3a.access.key": (["S3_ACCESS_KEY", "AWS_ACCESS_KEY_ID"], None),
+        "spark.hadoop.fs.s3a.secret.key": (["S3_SECRET_KEY", "AWS_SECRET_ACCESS_KEY"], None),
         "spark.hadoop.fs.s3a.endpoint": ("S3_ENTRY_POINT", None),
-        "spark.hadoop.fs.s3a.endpoint.region": ("S3_ENTRY_POINT_REGION", None),
+        "spark.hadoop.fs.s3a.endpoint.region": (
+            ["S3_ENTRY_POINT_REGION", "AWS_DEFAULT_REGION"],
+            None,
+        ),
         "spark.hadoop.fs.s3a.path.style.access": ("S3_PATH_STYLE_ACCESS", None),
         "spark.hadoop.fs.s3a.bucket.all.committer.magic.enabled": ("S3_MAGIC_COMMITTER", None),
     }
@@ -54,7 +58,11 @@ class ConfigBuilder(metaclass=Singleton):
 
     def __init__(self) -> None:
         self.deploy_mode_configured: bool = False
-        self._config: Dict[str, Any] = self._config_from_env(self._basic)
+        self.default_config = {
+            **self._basic,
+            **self._s3,
+        }
+        self._config: Dict[str, Any] = self._config_from_env(self.default_config)
         self._spark: Optional[SparkSession] = None
 
     @property
@@ -67,8 +75,15 @@ class ConfigBuilder(metaclass=Singleton):
 
     def _config_from_env(self, mapper: Dict[str, Tuple[str, str]]) -> Dict[str, Any]:
         config = {}
-        for k, (env, default) in mapper.items():
-            v = os.getenv(env, default)
+        for k, (envs, default) in mapper.items():
+            if isinstance(envs, str):
+                envs = [envs]
+            for env in envs:
+                v = os.getenv(env)
+                if v:
+                    break
+            v = v or default
+
             if v:
                 config[k] = v
 
@@ -123,7 +138,8 @@ class ConfigBuilder(metaclass=Singleton):
         self._merge_config(custom_config)
         return self
 
-    def _create(self) -> SparkSession:
+    def create(self) -> SparkSession:
+        logger.info("Create SparkSession")
         return SparkSession.builder.config(conf=self.spark_config).getOrCreate()
 
     def get_or_create(self) -> SparkSession:
@@ -133,5 +149,5 @@ class ConfigBuilder(metaclass=Singleton):
         if not self.deploy_mode_configured:
             self.config_local()
 
-        self._spark = self._create()
+        self._spark = self.create()
         return self._spark
