@@ -15,12 +15,14 @@ class Singleton(type):
 
 def get_host_ip():
     # Get ip via network connection
+    s = None
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
         ip = s.getsockname()[0]
     finally:
-        s.close()
+        if s:
+            s.close()
     return ip
 
 

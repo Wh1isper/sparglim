@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import os
 from functools import wraps
-from typing import Any, Dict, Literal, Optional, Tuple
+from typing import Any, Dict, Iterable, Literal, Optional, Tuple, Union
 
 from pyspark import SparkConf
 from pyspark.sql import SparkSession
@@ -74,7 +74,9 @@ class ConfigBuilder(metaclass=Singleton):
 
         return SparkConf().setAll(config)
 
-    def _config_from_env(self, mapper: Dict[str, Tuple[str, str]]) -> Dict[str, Any]:
+    def _config_from_env(
+        self, mapper: Dict[str, Tuple[Union[Iterable, str], str]]
+    ) -> Dict[str, Any]:
         config = {}
         for k, (envs, default) in mapper.items():
             if isinstance(envs, str):
@@ -106,7 +108,7 @@ class ConfigBuilder(metaclass=Singleton):
     def config(self, c: Dict[str, Any]) -> ConfigBuilder:
         will_config_master = c.get("spark.master") or c.get("spark.remote")
         if self.master_configured and will_config_master:
-            raise UnconfigurableError("Spark master already configured, try clear() first")
+            raise UnconfigurableError("Spark master/remote already configured, try clear() first")
         if will_config_master:
             self.master_configured = True
 
