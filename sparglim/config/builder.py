@@ -19,7 +19,20 @@ ConfigEnvMapper = Dict[str, Tuple[Union[Iterable, str], Optional[str]]]
 
 
 class Config(UserDict):
-    def preety_formated(self) -> str:
+    def __init__(self, dict=None, /, **kwargs):
+        self.master_configured: bool = False
+        super().__init__(dict, **kwargs)
+
+    def __setitem__(self, key: Any, item: Any) -> None:
+        will_config_master = key in ["spark.master", "spark.remote"]
+        if self.master_configured and will_config_master:
+            raise UnconfigurableError("Spark master/remote already configured, try clear() first")
+        if will_config_master:
+            self.master_configured = True
+
+        return super().__setitem__(key, item)
+
+    def pretty_format(self) -> str:
         lines = ["{"]
         for k, v in self.items():
             if "key" in k or "secret" in k:
@@ -29,7 +42,7 @@ class Config(UserDict):
         return "\n".join(lines)
 
     def __repr__(self) -> str:
-        return self.preety_formated()
+        return self.pretty_format()
 
 
 class ConfigBuilder(metaclass=Singleton):
@@ -59,6 +72,7 @@ class ConfigBuilder(metaclass=Singleton):
     }
     _connect_server = {}
     # TODO: config for k8s
+    #       should auto load ~/.kube/config or incluster config
     #       verify volumn mount/secret etc.
     #       Does k8s inject authorization into pod?
     _k8s = {
@@ -71,7 +85,6 @@ class ConfigBuilder(metaclass=Singleton):
             **self._s3,
         }
 
-        self.master_configured: bool
         self._config: Config
         self.initialize()
 
@@ -79,9 +92,12 @@ class ConfigBuilder(metaclass=Singleton):
         self._spark: Optional[SparkSession] = None
 
     def initialize(self) -> None:
-        self.master_configured: bool = False
         self._config: Config = Config(self._config_from_env(self.default_config_mapper))
         logger.debug(f"Initialized config: {self._config}")
+
+    @property
+    def master_configured(self) -> bool:
+        return self._config.master_configured
 
     @property
     def spark_config(self) -> SparkConf:
@@ -121,12 +137,6 @@ class ConfigBuilder(metaclass=Singleton):
         logger.debug(f"Current config: {self._config}")
 
     def config(self, c: Dict[str, Any]) -> ConfigBuilder:
-        will_config_master = c.get("spark.master") or c.get("spark.remote")
-        if self.master_configured and will_config_master:
-            raise UnconfigurableError("Spark master/remote already configured, try clear() first")
-        if will_config_master:
-            self.master_configured = True
-
         self._merge_config(c)
         return self
 

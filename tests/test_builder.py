@@ -35,8 +35,9 @@ def verify_spark(spark, config):
         assert spark.conf.get(k) == v
 
 
-def assert_contain(left: Dict, right: Dict):
+def assert_contain(left, right):
     for k, v in right.items():
+        assert k in left
         assert left[k] == v
 
 

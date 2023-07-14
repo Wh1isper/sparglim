@@ -28,7 +28,7 @@ jobs:
     - name: Test with pytype
       continue-on-error: true
       run: |
-        pytype ./*
+        pytype ./sparglim
     - name: Test with pytest
       run: |
         pytest -vv
