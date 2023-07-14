@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import os
+from collections import UserDict
 from functools import wraps
 from typing import Any, Dict, Iterable, Literal, Optional, Tuple, Union
 
@@ -14,6 +15,22 @@ from sparglim.exceptions import UnconfigurableError
 from sparglim.log import logger
 from sparglim.utils import Singleton
 
+ConfigEnvMapper = Dict[str, Tuple[Union[Iterable, str], Optional[str]]]
+
+
+class Config(UserDict):
+    def preety_formated(self) -> str:
+        lines = ["{"]
+        for k, v in self.items():
+            if "key" in k or "secret" in k:
+                v = "******"
+            lines.append(f'  "{k}":"{v}"')
+        lines += ["}"]
+        return "\n".join(lines)
+
+    def __repr__(self) -> str:
+        return self.preety_formated()
+
 
 class ConfigBuilder(metaclass=Singleton):
     _basic = {
@@ -21,7 +38,6 @@ class ConfigBuilder(metaclass=Singleton):
         "spark.submit.deployMode": ("SPAGLIM_DEPLOY_MODE", "client"),
         "spark.scheduler.mode": ("SPARGLIM_SCHEDULER_MODE", "FAIR"),
     }
-    # FIXME: S3 secret(and any other) should not be printed
     _s3 = {
         "spark.hadoop.fs.s3a.access.key": (["S3_ACCESS_KEY", "AWS_ACCESS_KEY_ID"], None),
         "spark.hadoop.fs.s3a.secret.key": (["S3_SECRET_KEY", "AWS_SECRET_ACCESS_KEY"], None),
@@ -50,21 +66,22 @@ class ConfigBuilder(metaclass=Singleton):
     }
 
     def __init__(self) -> None:
+        self.default_config_mapper: ConfigEnvMapper = {
+            **self._basic,
+            **self._s3,
+        }
+
         self.master_configured: bool
-        self.default_config: Dict[str, Any]
-        self._config: Dict[str, Any]
+        self._config: Config
         self.initialize()
+
         self.default_master_config = self.config_local
         self._spark: Optional[SparkSession] = None
 
     def initialize(self) -> None:
         self.master_configured: bool = False
-        self.default_config = {
-            **self._basic,
-            **self._s3,
-        }
-        self._config: Dict[str, Any] = self._config_from_env(self.default_config)
-        logger.debug("Initialized config: {self._config}")
+        self._config: Config = Config(self._config_from_env(self.default_config_mapper))
+        logger.debug(f"Initialized config: {self._config}")
 
     @property
     def spark_config(self) -> SparkConf:
@@ -74,10 +91,8 @@ class ConfigBuilder(metaclass=Singleton):
 
         return SparkConf().setAll(config)
 
-    def _config_from_env(
-        self, mapper: Dict[str, Tuple[Union[Iterable, str], str]]
-    ) -> Dict[str, Any]:
-        config = {}
+    def _config_from_env(self, mapper: ConfigEnvMapper) -> Dict[str, Any]:
+        config = dict()
         for k, (envs, default) in mapper.items():
             if isinstance(envs, str):
                 envs = [envs]
@@ -166,6 +181,8 @@ class ConfigBuilder(metaclass=Singleton):
         mode: Literal["local", "k8s"] = "local",
         custom_config: Optional[Dict[str, Any]] = None,
     ) -> ConfigBuilder:
+        if not custom_config:
+            custom_config = dict()
         if mode == "local":
             self.config_local(custom_config)
         elif mode == "k8s":
@@ -173,7 +190,7 @@ class ConfigBuilder(metaclass=Singleton):
         else:
             raise UnconfigurableError(f"Unknown mode: {mode}")
 
-        self._merge_config(self._config_from_env(self._connect_server))
+        self.config(self._config_from_env(self._connect_server))
         return self
 
     def create(self) -> SparkSession:
