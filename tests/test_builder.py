@@ -15,42 +15,6 @@ _HERE = os.path.abspath(__file__)
 
 
 @pytest.fixture
-def k8s_config_path(tmpdir):
-    k8s_config_path = tmpdir.join("k8s_config")
-    k8s_config_path.write(
-        """
-apiVersion: v1
-clusters:
-- cluster:
-    certificate-authority: /root/.minikube/ca.crt
-    extensions:
-    - extension:
-        last-update: Sun, 16 Jul 2023 15:22:10 CST
-        provider: minikube.sigs.k8s.io
-        version: v1.28.0
-      name: cluster_info
-    server: https://172.27.211.155:8443
-  name: minikube
-contexts:
-- context:
-    cluster: minikube
-    user: minikube
-  name: minikube
-current-context: minikube
-kind: Config
-preferences: {}
-users:
-- name: minikube
-  user:
-    client-certificate: /root/.minikube/profiles/minikube/client.crt
-    client-key: /root/.minikube/profiles/minikube/client.key
-"""
-    )
-    yield k8s_config_path
-    k8s_config_path.remove()
-
-
-@pytest.fixture
 def config_builder():
     c = ConfigBuilder()
     yield c
