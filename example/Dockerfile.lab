@@ -1,0 +1,14 @@
+FROM wh1isper/pyspark-app-base:3.4.1
+
+USER root
+RUN  apt-get -y update && apt-get -y upgrade && apt-get install -y tini \
+    && rm -rf /var/lib/apt/lists/* &&  rm -rf /root/.cache && rm -rf /var/cache/apt/*
+
+USER application
+RUN pip install --no-cache-dir jupyterlab
+RUN pip install --no-cache-dir sparglim[all]
+
+ENTRYPOINT ["tini","--","jupyter-lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--IdentityProvider.token=''"]
+EXPOSE 8888
+
+# docker build -t wh1isper/sparglim-lab:latest -f example/Dockerfile.lab .

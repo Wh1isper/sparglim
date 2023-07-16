@@ -15,6 +15,42 @@ _HERE = os.path.abspath(__file__)
 
 
 @pytest.fixture
+def k8s_config_path(tmpdir):
+    k8s_config_path = tmpdir.join("k8s_config")
+    k8s_config_path.write(
+        """
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority: /root/.minikube/ca.crt
+    extensions:
+    - extension:
+        last-update: Sun, 16 Jul 2023 15:22:10 CST
+        provider: minikube.sigs.k8s.io
+        version: v1.28.0
+      name: cluster_info
+    server: https://172.27.211.155:8443
+  name: minikube
+contexts:
+- context:
+    cluster: minikube
+    user: minikube
+  name: minikube
+current-context: minikube
+kind: Config
+preferences: {}
+users:
+- name: minikube
+  user:
+    client-certificate: /root/.minikube/profiles/minikube/client.crt
+    client-key: /root/.minikube/profiles/minikube/client.key
+"""
+    )
+    yield k8s_config_path
+    k8s_config_path.remove()
+
+
+@pytest.fixture
 def config_builder():
     c = ConfigBuilder()
     yield c
@@ -48,10 +84,14 @@ def patch_env(config_builder: ConfigBuilder, monkeypatch, mapper: Dict[str, str]
 
 
 @pytest.mark.parametrize("mode", ["local", "k8s", "connect_client", "connect_server"])
-def test_deploy_mode(config_builder: ConfigBuilder, mode: str):
+def test_deploy_mode(config_builder: ConfigBuilder, mode: str, k8s_config_path):
     config_builder = config_builder.clear()
     config_mode = getattr(config_builder, f"config_{mode}")
-    config_mode()
+    if mode == "k8s":
+        config_mode(k8s_config_path=k8s_config_path)
+    else:
+        config_mode()
+
     assert config_builder.master_configured
     with pytest.raises(UnconfigurableError) as e:
         config_mode()
@@ -148,6 +188,17 @@ def test_s3(
     }
     config_builder.config_s3(convert_mapper)
     assert_contain(config_builder._config, {**expect_mapper, **convert_mapper})
+
+
+# TODO:
+# Mock env as incluster
+# def test_k8s(config_builder: ConfigBuilder, monkeypatch, k8s_config_path):
+#     config_builder.config_k8s()
+
+
+def test_k8s_no_config(config_builder: ConfigBuilder):
+    with pytest.raises(UnconfigurableError) as e:
+        config_builder.config_k8s(k8s_config_path="NOT-EXSIT-FILE")
 
 
 if __name__ == "__main__":

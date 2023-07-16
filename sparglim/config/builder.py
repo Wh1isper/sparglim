@@ -8,12 +8,14 @@ from collections import UserDict
 from functools import wraps
 from typing import Any, Dict, Iterable, Literal, Optional, Tuple, Union
 
+from kubernetes.config.incluster_config import SERVICE_TOKEN_FILENAME
 from pyspark import SparkConf
 from pyspark.sql import SparkSession
 
+from sparglim.config.k8s import INCLUSTER, get_k8s_config, get_namespace
 from sparglim.exceptions import UnconfigurableError
 from sparglim.log import logger
-from sparglim.utils import Singleton
+from sparglim.utils import Singleton, get_host_ip
 
 ConfigEnvMapper = Dict[str, Tuple[Union[Iterable, str], Optional[str]]]
 
@@ -35,7 +37,7 @@ class Config(UserDict):
     def pretty_format(self) -> str:
         lines = ["{"]
         for k, v in self.items():
-            if "key" in k or "secret" in k:
+            if ("key" in k.lower() or "secret" in k.lower()) and "file" not in k.lower():
                 v = "******"
             lines.append(f'  "{k}":"{v}"')
         lines += ["}"]
@@ -71,12 +73,38 @@ class ConfigBuilder(metaclass=Singleton):
         "spark.remote": ("SPARGLIM_REMOTE", "sc://localhost"),
     }
     _connect_server = {}
-    # TODO: config for k8s
-    #       should auto load ~/.kube/config or incluster config
-    #       verify volumn mount/secret etc.
-    #       Does k8s inject authorization into pod?
+    #  FIXME: Does k8s inject more info into pod?
     _k8s = {
+        # May convert by k8s config file(if exsits)
         "spark.master": ("SPARGLIM_MASTER", "k8s://https://kubernetes.default.svc"),
+        "spark.kubernetes.namespace": ("SPARGLIM_K8S_NAMESPACE", None),
+        # set SPARGLIM_K8S_IMAGE for image:tag
+        # or set SPARGLIM_K8S_IMAGE_TAG for wh1isper/spark-executor:tag
+        "spark.kubernetes.container.image": (
+            "SPARGLIM_K8S_IMAGE",
+            f"wh1isper/spark-executor:{os.getenv('SPARGLIM_K8S_IMAGE_TAG', '3.4.1')}",
+        ),
+        "spark.kubernetes.container.image.pullSecrets": ("SPARGLIM_K8S_IMAGE_PULL_SECRETS", None),
+        "spark.kubernetes.container.image.pullPolicy": (
+            "SPARGLIM_K8S_IMAGE_PULL_POLICY",
+            "IfNotPresent",
+        ),
+        "spark.executor.instances": ("SPARK_EXECUTOR_NUMS", "3"),
+        # Expend list from "a,b" -> [a,b], then map them to {label.a: true, label.b: true}
+        "spark.kubernetes.executor.label.list": (
+            "SPARGLIM_K8S_EXECUTOR_LABEL_LIST",
+            "sparglim-executor",
+        ),
+        "spark.kubernetes.executor.annotation.list": (
+            "SPARGLIM_K8S_EXECUTOR_ANNOTATION_LIST",
+            "sparglim-executor",
+        ),
+        # INCLUSTER, work with k8s filedRef.fieldPath, see example
+        # TODO: There is no example yet...
+        "spark.driver.host": ("SPARGLIM_DRIVER_HOST", None),
+        "spark.driver.bindAddress": ("SPARGLIM_DRIVER_BINDADDRESS", "0.0.0.0"),
+        "spark.kubernetes.driver.pod.name": ("SPARGLIM_DRIVER_POD_NAME", None),
+        # Authenticate will auto config by k8s config file
     }
 
     def __init__(self) -> None:
@@ -162,12 +190,55 @@ class ConfigBuilder(metaclass=Singleton):
         )
         return self
 
-    def config_k8s(self, custom_config: Optional[Dict[str, Any]] = None) -> ConfigBuilder:
+    def config_k8s(
+        self,
+        custom_config: Optional[Dict[str, Any]] = None,
+        *,
+        k8s_config_path: Optional[str] = None,
+    ) -> ConfigBuilder:
         if not custom_config:
             custom_config = dict()
+        env_config = self._config_from_env(self._k8s)
+        if not env_config.get("spark.kubernetes.namespace"):
+            env_config["spark.kubernetes.namespace"] = get_namespace()
+        if INCLUSTER:
+            env_config.setdefault(
+                "spark.kubernetes.authenticate.oauthTokenFile", SERVICE_TOKEN_FILENAME
+            )
+        else:
+            env_config.setdefault("spark.driver.host", get_host_ip())
+
+        to_remove_keys = []
+        extracted_config = dict()
+        for k, v in env_config.items():
+            if not k.endswith(".list"):
+                continue
+            prefix = ".".join(k.split(".")[:-1])
+            for item in v.split(","):
+                extracted_config[f"{prefix}.{item}"] = "true"
+            to_remove_keys.append(k)
+        for k in to_remove_keys:
+            env_config.pop(k)
+        env_config.update(**extracted_config)
+
+        try:
+            url, _, ca, key_file, cert_file = get_k8s_config(k8s_config_path)
+        except Exception as e:
+            logger.exception(e)
+            raise UnconfigurableError("Fail to load k8s config")
+
+        master = f"k8s://{url}"
+        k8s_config = {
+            "spark.master": master,
+            "spark.kubernetes.authenticate.caCertFile": ca,
+            "spark.kubernetes.authenticate.clientKeyFile": key_file,
+            "spark.kubernetes.authenticate.clientCertFile": cert_file,
+        }
+
         self.config(
             {
-                **self._config_from_env(self._k8s),
+                **env_config,
+                **k8s_config,
                 **custom_config,
             }
         )
@@ -216,3 +287,10 @@ class ConfigBuilder(metaclass=Singleton):
 
         self._spark = self.create()
         return self._spark
+
+
+if __name__ == "__main__":
+    config = ConfigBuilder()
+    config.config_k8s()
+    config.get_or_create()
+    input()
