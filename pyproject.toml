@@ -19,9 +19,7 @@ classifiers = [
 magic = ["ipython"]
 k8s = ["kubernetes"]
 all = [
-    "pyspark[pandas_on_spark]",
-    "pyspark[sql]",
-    "pyspark[connect]",
+    "pyspark[pandas_on_spark,sql,connect]",
     "sparglim[magic]",
     "sparglim[k8s]",
 ]
