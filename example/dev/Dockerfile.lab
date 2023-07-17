@@ -13,4 +13,4 @@ RUN pip install --no-cache-dir ./sparglim[all]
 ENTRYPOINT ["tini","--","jupyter-lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--IdentityProvider.token=''"]
 EXPOSE 8888
 
-# docker build -t wh1isper/sparglim-lab:dev -f example/dev/Dockerfile.lab .
+# docker build -t wh1isper/sparglim-lab:dev -f example/dev/Dockerfile.lab . && ./example/dev/k8s/reload.sh

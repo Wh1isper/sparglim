@@ -75,6 +75,7 @@ class ConfigBuilder(metaclass=Singleton):
     _connect_server = {}
     #  FIXME: Does k8s inject more info into pod?
     _k8s = {
+        # Authenticate will auto config by k8s config file
         # May convert by k8s config file(if exsits)
         "spark.master": ("SPARGLIM_MASTER", "k8s://https://kubernetes.default.svc"),
         "spark.kubernetes.namespace": ("SPARGLIM_K8S_NAMESPACE", None),
@@ -116,7 +117,8 @@ class ConfigBuilder(metaclass=Singleton):
         ),
         "spark.executor.resource.gpu.amount": ("SPARGLIM_K8S_GPU_AMOUNT", None),
         "spark.rapids.sql.enabled": ("SPARGLIM_RAPIDS_SQL_ENABLED", None)
-        # Authenticate will auto config by k8s config file
+        # TODO: Mount config
+        #       This is highly customized and it is uncertain when it will be supported
     }
 
     def __init__(self) -> None:

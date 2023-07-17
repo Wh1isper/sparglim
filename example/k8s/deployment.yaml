@@ -23,6 +23,8 @@ spec:
             - containerPort: 8888
           imagePullPolicy: Always
           env:
+            - name: SPARGLIM_SQL_MODE
+              value: "k8s"
             - name: SPARGLIM_DRIVER_HOST
               valueFrom:
                 fieldRef:
