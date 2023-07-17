@@ -156,8 +156,56 @@ def test_s3(
 
 # TODO:
 # Mock env as incluster
-# def test_k8s(config_builder: ConfigBuilder, monkeypatch, k8s_config_path):
-#     config_builder.config_k8s()
+k8s_env_mapper = [
+    (
+        {
+            "SPARGLIM_K8S_NAMESPACE": "namespace",
+            "SPARGLIM_K8S_IMAGE": "image",
+            "SPARK_EXECUTOR_NUMS": "4",
+            "SPARGLIM_K8S_EXECUTOR_LABEL_LIST": "a,b",
+            "SPARGLIM_K8S_EXECUTOR_ANNOTATION_LIST": "a,b",
+            "SPARGLIM_DRIVER_HOST": "headless-sparglim",
+            "SPARGLIM_DRIVER_POD_NAME": "some-spark-app",
+            "SPARGLIM_DRIVER_BINDADDRESS": "192.168.1.1",
+        },
+        {
+            "spark.kubernetes.namespace": "namespace",
+            "spark.kubernetes.container.image": "image",
+            "spark.executor.instances": "4",
+            "spark.kubernetes.executor.label.a": "true",
+            "spark.kubernetes.executor.label.b": "true",
+            "spark.kubernetes.executor.annotation.a": "true",
+            "spark.kubernetes.executor.annotation.b": "true",
+            "spark.driver.host": "headless-sparglim",
+            "spark.kubernetes.driver.pod.name": "some-spark-app",
+            "spark.driver.bindAddress": "192.168.1.1",
+        },
+    ),
+    (
+        {
+            # Test default value
+        },
+        {
+            "spark.kubernetes.namespace": "sparglim",
+            "spark.kubernetes.executor.label.sparglim-executor": "true",
+            "spark.kubernetes.executor.annotation.sparglim-executor": "true",
+            "spark.driver.bindAddress": "0.0.0.0",
+        },
+    ),
+]
+
+
+@pytest.mark.parametrize("env_mapper, expect_mapper", k8s_env_mapper)
+def test_k8s(
+    config_builder: ConfigBuilder,
+    monkeypatch,
+    k8s_config_path,
+    env_mapper: Dict[str, str],
+    expect_mapper: Dict[str, str],
+):
+    config_builder = patch_env(config_builder, monkeypatch, env_mapper)
+    config_builder.config_k8s(k8s_config_path=k8s_config_path)
+    assert_contain(config_builder._config, expect_mapper)
 
 
 def test_k8s_no_config(config_builder: ConfigBuilder):

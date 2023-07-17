@@ -79,10 +79,9 @@ class ConfigBuilder(metaclass=Singleton):
         "spark.master": ("SPARGLIM_MASTER", "k8s://https://kubernetes.default.svc"),
         "spark.kubernetes.namespace": ("SPARGLIM_K8S_NAMESPACE", None),
         # set SPARGLIM_K8S_IMAGE for image:tag
-        # or set SPARGLIM_K8S_IMAGE_TAG for wh1isper/spark-executor:tag
         "spark.kubernetes.container.image": (
             "SPARGLIM_K8S_IMAGE",
-            f"wh1isper/spark-executor:{os.getenv('SPARGLIM_K8S_IMAGE_TAG', '3.4.1')}",
+            "wh1isper/spark-executor:3.4.1",
         ),
         "spark.kubernetes.container.image.pullSecrets": ("SPARGLIM_K8S_IMAGE_PULL_SECRETS", None),
         "spark.kubernetes.container.image.pullPolicy": (
@@ -153,10 +152,10 @@ class ConfigBuilder(metaclass=Singleton):
 
     def clear(self) -> ConfigBuilder:
         logger.info("Reinitialize config and stop SparkSession")
-        self.initialize()
         if self._spark:
             self._spark.stop()
             self._spark = None
+        self.initialize()
         return self
 
     def _merge_config(self, c: Dict[str, Any]) -> None:
