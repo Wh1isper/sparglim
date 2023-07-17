@@ -226,13 +226,16 @@ class ConfigBuilder(metaclass=Singleton):
             logger.exception(e)
             raise UnconfigurableError("Fail to load k8s config")
 
-        master = f"k8s://{url}"
+        def set_if_not_none(config_dict, k, v):
+            if v is not None:
+                config_dict[k] = v
+
         k8s_config = {
-            "spark.master": master,
-            "spark.kubernetes.authenticate.caCertFile": ca,
-            "spark.kubernetes.authenticate.clientKeyFile": key_file,
-            "spark.kubernetes.authenticate.clientCertFile": cert_file,
+            "spark.master": f"k8s://{url}",
         }
+        set_if_not_none(k8s_config, "spark.kubernetes.authenticate.caCertFile", ca)
+        set_if_not_none(k8s_config, "spark.kubernetes.authenticate.clientKeyFile", key_file)
+        set_if_not_none(k8s_config, "spark.kubernetes.authenticate.clientCertFile", cert_file)
 
         self.config(
             {
