@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sparglim-app
+  namespace: sparglim
+  labels:
+    app: sparglim
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sparglim-app
+  template:
+    metadata:
+      labels:
+        app: sparglim-app
+    spec:
+      containers:
+        - name: sparglim-app
+          image: wh1isper/sparglim-lab:dev
+          ports:
+            - containerPort: 8888
+          imagePullPolicy: Never
+          env:
+            - name: SPARGLIM_DRIVER_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: SPARGLIM_DRIVER_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
