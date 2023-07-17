@@ -103,6 +103,19 @@ class ConfigBuilder(metaclass=Singleton):
         "spark.driver.host": ("SPARGLIM_DRIVER_HOST", None),
         "spark.driver.bindAddress": ("SPARGLIM_DRIVER_BINDADDRESS", "0.0.0.0"),
         "spark.kubernetes.driver.pod.name": ("SPARGLIM_DRIVER_POD_NAME", None),
+        # Config for executor
+        "spark.kubernetes.executor.cores": ("SPARGLIM_K8S_EXECUTOR_REQUEST_CORES", None),
+        "spark.kubernetes.executor.limit.cores": ("SPARGLIM_K8S_EXECUTOR_LIMIT_CORES", None),
+        "spark.executor.memory": ("SPARGLIM_EXECUTOR_REQUEST_MEMORY", "512m"),
+        "spark.executor.memoryOverhead": ("SPARGLIM_EXECUTOR_LIMIT_MEMORY", None),
+        # GPU
+        "spark.executor.resource.gpu.vendor": ("SPARGLIM_K8S_GPU_VENDOR", "nvidia.com"),
+        "spark.executor.resource.gpu.discoveryScript": (
+            "SPARGLIM_K8S_GPU_DISCOVERY_SCRIPT",
+            "/opt/spark/examples/src/main/scripts/getGpusResources.sh",
+        ),
+        "spark.executor.resource.gpu.amount": ("SPARGLIM_K8S_GPU_AMOUNT", None),
+        "spark.rapids.sql.enabled": ("SPARGLIM_RAPIDS_SQL_ENABLED", None)
         # Authenticate will auto config by k8s config file
     }
 
@@ -219,6 +232,10 @@ class ConfigBuilder(metaclass=Singleton):
         for k in to_remove_keys:
             env_config.pop(k)
         env_config.update(**extracted_config)
+
+        if not env_config.get("spark.executor.resource.gpu.amount"):
+            env_config.pop("spark.executor.resource.gpu.vendor")
+            env_config.pop("spark.executor.resource.gpu.discoveryScript")
 
         try:
             url, _, ca, key_file, cert_file = get_k8s_config(k8s_config_path)

@@ -37,6 +37,9 @@ def verify_spark(spark, config):
 
 def assert_contain(left, right):
     for k, v in right.items():
+        if v == None:
+            assert k not in left
+            continue
         assert k in left
         assert left[k] == v
 
@@ -167,6 +170,11 @@ k8s_env_mapper = [
             "SPARGLIM_DRIVER_HOST": "headless-sparglim",
             "SPARGLIM_DRIVER_POD_NAME": "some-spark-app",
             "SPARGLIM_DRIVER_BINDADDRESS": "192.168.1.1",
+            "SPARGLIM_K8S_EXECUTOR_REQUEST_CORES": "1",
+            "SPARGLIM_K8S_EXECUTOR_LIMIT_CORES": "4",
+            "SPARGLIM_EXECUTOR_REQUEST_MEMORY": "1024m",
+            "SPARGLIM_EXECUTOR_LIMIT_MEMORY": "2048m",
+            "SPARGLIM_K8S_GPU_AMOUNT": "1",
         },
         {
             "spark.kubernetes.namespace": "namespace",
@@ -179,6 +187,13 @@ k8s_env_mapper = [
             "spark.driver.host": "headless-sparglim",
             "spark.kubernetes.driver.pod.name": "some-spark-app",
             "spark.driver.bindAddress": "192.168.1.1",
+            "spark.kubernetes.executor.cores": "1",
+            "spark.kubernetes.executor.limit.cores": "4",
+            "spark.executor.memory": "1024m",
+            "spark.executor.memoryOverhead": "2048m",
+            "spark.executor.resource.gpu.vendor": "nvidia.com",
+            "spark.executor.resource.gpu.discoveryScript": "/opt/spark/examples/src/main/scripts/getGpusResources.sh",
+            "spark.executor.resource.gpu.amount": "1",
         },
     ),
     (
@@ -190,6 +205,9 @@ k8s_env_mapper = [
             "spark.kubernetes.executor.label.sparglim-executor": "true",
             "spark.kubernetes.executor.annotation.sparglim-executor": "true",
             "spark.driver.bindAddress": "0.0.0.0",
+            "spark.executor.memory": "512m",
+            "spark.executor.resource.gpu.vendor": None,
+            "spark.executor.resource.gpu.discoveryScript": None,
         },
     ),
 ]
