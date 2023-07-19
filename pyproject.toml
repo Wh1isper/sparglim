@@ -7,7 +7,7 @@ name = "sparglim"
 description = "sparglim"
 keywords = ["sparglim"]
 requires-python = ">=3.8"
-dependencies = ["pyspark", "findspark", "loguru"]
+dependencies = ["pyspark", "findspark", "loguru", "click"]
 dynamic = ["version"]
 classifiers = [
     'Programming Language :: Python :: 3',

@@ -14,6 +14,8 @@ Sparglim is aimed at providing a clean solution for PySpark applications in clou
 
 ## SQL Magic
 
+## Connect Server daemon
+
 ## Install
 
 `pip install sparglim`
