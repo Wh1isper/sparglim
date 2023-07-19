@@ -60,8 +60,10 @@ def test_deploy_mode(config_builder: ConfigBuilder, mode: str, k8s_config_path):
         config_mode()
 
     assert config_builder.master_configured
-    with pytest.raises(UnconfigurableError) as e:
-        config_mode()
+
+    if mode in ["local", "k8s"]:
+        with pytest.raises(UnconfigurableError) as e:
+            config_mode()
 
 
 def test_merge(config_builder: ConfigBuilder):
@@ -229,6 +231,65 @@ def test_k8s(
 def test_k8s_no_config(config_builder: ConfigBuilder):
     with pytest.raises(UnconfigurableError) as e:
         config_builder.config_k8s(k8s_config_path="NOT-EXSIT-FILE")
+
+
+connect_client_mapper = [
+    ({"SPARGLIM_REMOTE": "sc://localhost:9999"}, {"spark.remote": "sc://localhost:9999"}),
+    (
+        {
+            # Test default value
+        },
+        {"spark.remote": "sc://localhost:15002"},
+    ),
+]
+
+
+@pytest.mark.parametrize("env_mapper, expect_mapper", connect_client_mapper)
+def test_connect_client(
+    config_builder: ConfigBuilder,
+    monkeypatch,
+    env_mapper: Dict[str, str],
+    expect_mapper: Dict[str, str],
+):
+    config_builder = patch_env(config_builder, monkeypatch, env_mapper)
+    config_builder.config_connect_client()
+    assert_contain(config_builder._config, expect_mapper)
+
+
+connect_server_mapper = [
+    (
+        {
+            "SPARGLIM_CONNECT_SERVER_PORT": "9999",
+            "SPARGLIM_CONNECT_GRPC_ARROW_MAXBS": "12345",
+            "SPARGLIM_CONNECT_GRPC_MAXIM": "67890",
+        },
+        {
+            "spark.connect.grpc.binding.port": "9999",
+            "spark.connect.grpc.arrow.maxBatchSize": "12345",
+            "spark.connect.grpc.maxInboundMessageSize": "67890",
+        },
+    ),
+    (
+        {
+            # Test default value
+        },
+        {
+            "spark.connect.grpc.binding.port": "15002",
+        },
+    ),
+]
+
+
+@pytest.mark.parametrize("env_mapper, expect_mapper", connect_server_mapper)
+def test_connect_server(
+    config_builder: ConfigBuilder,
+    monkeypatch,
+    env_mapper: Dict[str, str],
+    expect_mapper: Dict[str, str],
+):
+    config_builder = patch_env(config_builder, monkeypatch, env_mapper)
+    config_builder.config_connect_server()
+    assert_contain(config_builder._config, expect_mapper)
 
 
 if __name__ == "__main__":

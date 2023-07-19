@@ -52,6 +52,7 @@ class ConfigBuilder(metaclass=Singleton):
         "spark.app.name": ("SPAGLIM_APP_NAME", "Sparglim"),
         "spark.submit.deployMode": ("SPAGLIM_DEPLOY_MODE", "client"),
         "spark.scheduler.mode": ("SPARGLIM_SCHEDULER_MODE", "FAIR"),
+        "spark.ui.port": ("SPARGLIM_UI_PORT", None),
     }
     _s3 = {
         "spark.hadoop.fs.s3a.access.key": (["S3_ACCESS_KEY", "AWS_ACCESS_KEY_ID"], None),
@@ -68,12 +69,15 @@ class ConfigBuilder(metaclass=Singleton):
         "spark.master": ("SPARGLIM_MASTER", "local[*]"),
         "spark.driver.memory": ("SPARGLIM_LOCAL_MEMORY", "512m"),
     }
-    # TODO: config for connect-server mode
     _connect_client = {
-        "spark.remote": ("SPARGLIM_REMOTE", "sc://localhost"),
+        "spark.remote": ("SPARGLIM_REMOTE", "sc://localhost:15002"),
     }
-    _connect_server = {}
-    #  FIXME: Does k8s inject more info into pod?
+    _connect_server = {
+        "spark.connect.grpc.binding.port": ("SPARGLIM_CONNECT_SERVER_PORT", "15002"),
+        "spark.connect.grpc.arrow.maxBatchSize": ("SPARGLIM_CONNECT_GRPC_ARROW_MAXBS", None),
+        "spark.connect.grpc.maxInboundMessageSize": ("SPARGLIM_CONNECT_GRPC_MAXIM", None),
+    }
+    #  FIXME: Does k8s inject more info into pod? So that we can use them directly
     _k8s = {
         # Authenticate will auto config by k8s config file
         # May convert by k8s config file(if exsits)
@@ -194,6 +198,7 @@ class ConfigBuilder(metaclass=Singleton):
         return self
 
     def config_local(self, custom_config: Optional[Dict[str, Any]] = None) -> ConfigBuilder:
+        logger.info(f"Config master: local mode")
         if not custom_config:
             custom_config = dict()
         self.config(
@@ -210,6 +215,7 @@ class ConfigBuilder(metaclass=Singleton):
         *,
         k8s_config_path: Optional[str] = None,
     ) -> ConfigBuilder:
+        logger.info(f"Config master: k8s mode")
         if not custom_config:
             custom_config = dict()
         env_config = self._config_from_env(self._k8s)
@@ -285,13 +291,17 @@ class ConfigBuilder(metaclass=Singleton):
     ) -> ConfigBuilder:
         if not custom_config:
             custom_config = dict()
-        if mode == "local":
-            self.config_local(custom_config)
-        elif mode == "k8s":
-            self.config_k8s(custom_config)
-        else:
-            raise UnconfigurableError(f"Unknown mode: {mode}")
 
+        if not self.master_configured:
+            logger.info(f"Config master to connect-server mode accroding mode {mode}")
+
+            if mode == "local":
+                self.config_local(custom_config)
+            elif mode == "k8s":
+                self.config_k8s(custom_config)
+            else:
+                raise UnconfigurableError(f"Unknown mode: {mode}")
+        logger.info(f"Config connect server")
         self.config(self._config_from_env(self._connect_server))
         return self
 
