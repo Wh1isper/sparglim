@@ -7,7 +7,7 @@ name = "sparglim"
 description = "sparglim"
 keywords = ["sparglim"]
 requires-python = ">=3.8"
-dependencies = ["pyspark", "findspark", "loguru", "click"]
+dependencies = ["loguru", "click"]
 dynamic = ["version"]
 classifiers = [
     'Programming Language :: Python :: 3',
@@ -16,15 +16,14 @@ classifiers = [
     'Programming Language :: Python :: 3.10',
 ]
 [project.optional-dependencies]
-magic = ["ipython"]
-k8s = ["kubernetes"]
-all = [
-    "pyspark[pandas_on_spark,sql,connect]",
-    "sparglim[magic]",
-    "sparglim[k8s]",
-]
+pyspark = ["pyspark[pandas_on_spark,sql,connect]", "findspark"]
+magic = ["sparglim[pyspark]", "ipython"]
+k8s = ["sparglim[pyspark]", "kubernetes"]
+
+all = ["sparglim[pyspark]", "sparglim[magic]", "sparglim[k8s]"]
 test = ["sparglim[all]", "pytest", "pytest-cov", "pytype"]
-dev = ["sparglim[all]", "sparglim[test]"]
+# TODO: Docs dependencies
+dev = ["sparglim[test]"]
 
 
 [[project.authors]]
