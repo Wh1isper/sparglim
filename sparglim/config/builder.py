@@ -104,7 +104,7 @@ class ConfigBuilder(metaclass=Singleton):
             "sparglim-executor",
         ),
         # INCLUSTER, work with k8s filedRef.fieldPath, see example
-        # TODO: There is no example yet...
+        # TODO: There is a simple example, but no docs yet...
         "spark.driver.host": ("SPARGLIM_DRIVER_HOST", None),
         "spark.driver.bindAddress": ("SPARGLIM_DRIVER_BINDADDRESS", "0.0.0.0"),
         "spark.kubernetes.driver.pod.name": ("SPARGLIM_DRIVER_POD_NAME", None),
@@ -122,7 +122,9 @@ class ConfigBuilder(metaclass=Singleton):
         "spark.executor.resource.gpu.amount": ("SPARGLIM_K8S_GPU_AMOUNT", None),
         "spark.rapids.sql.enabled": ("SPARGLIM_RAPIDS_SQL_ENABLED", None)
         # TODO: Mount config
-        #       This is highly customized and it is uncertain when it will be supported
+        #       Given that it is highly customizable
+        #       Not sure when it will be supported
+        #       Welcome PR or discussion here!
     }
 
     def __init__(self) -> None:
@@ -318,10 +320,3 @@ class ConfigBuilder(metaclass=Singleton):
 
         self._spark = self.create()
         return self._spark
-
-
-if __name__ == "__main__":
-    config = ConfigBuilder()
-    config.config_k8s()
-    config.get_or_create()
-    input()
