@@ -7,6 +7,9 @@ import os
 import pytest
 from IPython.testing.globalipapp import get_ipython
 
+from sparglim.exceptions import UnconfigurableError
+from sparglim.sql.magic import SparkMagic
+
 _HERE = os.path.dirname(__file__)
 example_file = os.path.join(_HERE, "example/people.json")
 
@@ -36,6 +39,17 @@ def test_mix():
         f'USING json OPTIONS (path "{example_file}");' "SELECT * FROM tb_people3",
     )
     ipy.run_line_magic("sql", "SHOW TABLES")
+
+
+@pytest.mark.parametrize("mode", ["local", "k8s", "connect_client", "connect_server"])
+def test_env_config(monkeypatch, mode):
+    monkeypatch.setenv(SparkMagic.ENV_MASTER_MODE, mode)
+    SparkMagic.clear()
+    if mode == "connect_server":
+        with pytest.raises(UnconfigurableError):
+            SparkMagic()
+    else:
+        SparkMagic()
 
 
 if __name__ == "__main__":

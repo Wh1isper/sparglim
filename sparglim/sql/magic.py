@@ -1,12 +1,13 @@
 #  Copyright (c) 2023 Wh1isper
 #  Licensed under the BSD 3-Clause
 import os
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Union
 
 from IPython.core.magic import Magics, cell_magic, line_magic, magics_class
 from pyspark.sql import SparkSession
 
 from sparglim.config import ConfigBuilder
+from sparglim.exceptions import UnconfigurableError
 from sparglim.log import logger
 
 
@@ -51,27 +52,27 @@ class SparkMagic(Magics):
     """
 
     ENV_MASTER_MODE = "SPARGLIM_SQL_MODE"
+    DEFAULT_MODE = "local"
 
     # TODO: visualize spark dataframe
     def __init__(self, shell=None, **kwargs):
         super().__init__(shell=shell, **kwargs)
-        self.default_mode = "local"
         self.builder = ConfigBuilder().config(
             {
                 "spark.sql.repl.eagerEval.enabled": "true",
             }
         )
 
-        self.mode: Literal["local", "connect-client", "k8s"] = os.getenv(
-            self.ENV_MASTER_MODE, self.default_mode
-        )
+        self.mode: str = os.getenv(self.ENV_MASTER_MODE, self.DEFAULT_MODE)
 
         if self.mode == "local":
             self.builder.config_local()
-        elif self.mode == "connect-client":
+        elif self.mode == "connect_client":
             self.builder.config_connect_client()
         elif self.mode == "k8s":
             self.builder.config_k8s()
+        else:
+            raise UnconfigurableError(f"Unconfigurable mode {self.mode}")
 
     @property
     def spark(self) -> SparkSession:
