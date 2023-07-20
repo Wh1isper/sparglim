@@ -50,6 +50,8 @@ class SparkMagic(Magics):
         ```
     """
 
+    ENV_MASTER_MODE = "SPARGLIM_SQL_MODE"
+
     # TODO: visualize spark dataframe
     def __init__(self, shell=None, **kwargs):
         super().__init__(shell=shell, **kwargs)
@@ -61,7 +63,7 @@ class SparkMagic(Magics):
         )
 
         self.mode: Literal["local", "connect-client", "k8s"] = os.getenv(
-            "SPARGLIM_SQL_MODE", self.default_mode
+            self.ENV_MASTER_MODE, self.default_mode
         )
 
         if self.mode == "local":
