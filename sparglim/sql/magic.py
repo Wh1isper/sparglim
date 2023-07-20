@@ -56,6 +56,10 @@ class SparkMagic(Magics):
 
     # TODO: visualize spark dataframe
     def __init__(self, shell=None, **kwargs):
+        if "k8s_config_path" in kwargs:
+            k8s_config_path = kwargs.pop("k8s_config_path")
+        else:
+            k8s_config_path = None
         super().__init__(shell=shell, **kwargs)
         self.builder = ConfigBuilder().config(
             {
@@ -70,7 +74,7 @@ class SparkMagic(Magics):
         elif self.mode == "connect_client":
             self.builder.config_connect_client()
         elif self.mode == "k8s":
-            self.builder.config_k8s()
+            self.builder.config_k8s(k8s_config_path=k8s_config_path)
         else:
             raise UnconfigurableError(f"Unconfigurable mode {self.mode}")
 

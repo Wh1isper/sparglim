@@ -42,14 +42,14 @@ def test_mix():
 
 
 @pytest.mark.parametrize("mode", ["local", "k8s", "connect_client", "connect_server"])
-def test_env_config(monkeypatch, mode):
+def test_env_config(monkeypatch, mode, k8s_config_path):
     monkeypatch.setenv(SparkMagic.ENV_MASTER_MODE, mode)
     SparkMagic.clear()
     if mode == "connect_server":
         with pytest.raises(UnconfigurableError):
-            SparkMagic()
+            SparkMagic(k8s_config_path=k8s_config_path)
     else:
-        SparkMagic()
+        SparkMagic(k8s_config_path=k8s_config_path)
 
 
 if __name__ == "__main__":
