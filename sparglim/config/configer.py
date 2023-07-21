@@ -287,7 +287,7 @@ class SparkEnvConfiger:
 
     def config_connect_server(
         self,
-        mode: Literal["local", "k8s"] = "local",
+        mode: str = "local",
         custom_config: Optional[Dict[str, Any]] = None,
         *,
         k8s_config_path: Optional[str] = None,

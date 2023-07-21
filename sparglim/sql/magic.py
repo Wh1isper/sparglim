@@ -61,7 +61,13 @@ class SparkMagic(Magics):
         else:
             k8s_config_path = None
         super().__init__(shell=shell, **kwargs)
-        self.builder = ConfigBuilder().config(
+        self.builder = ConfigBuilder()
+        if self.builder.spark:
+            logger.info("SparkSession already exists, skip init")
+            self.builder.set_runtime_conf("spark.sql.repl.eagerEval.enabled", "true")
+            return
+
+        self.builder.config(
             {
                 "spark.sql.repl.eagerEval.enabled": "true",
             }
