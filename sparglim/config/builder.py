@@ -12,6 +12,7 @@ from sparglim.utils import Singleton
 class ConfigBuilder(SparkEnvConfiger, metaclass=Singleton):
     def __init__(self):
         super().__init__()
+        self.default_master_config = self.config_local
         self._spark: Optional[SparkSession] = None
 
     @property

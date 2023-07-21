@@ -136,8 +136,6 @@ class SparkEnvConfiger:
         self._config: Config
         self.initialize()
 
-        self.default_master_config = self.config_local
-
     def initialize(self) -> None:
         self._config: Config = Config(self._config_from_env(self.default_config_mapper))
         logger.debug(f"Initialized config: {self._config}")
@@ -287,7 +285,7 @@ class SparkEnvConfiger:
 
     def config_connect_server(
         self,
-        mode: str = "local",
+        mode: str = None,
         custom_config: Optional[Dict[str, Any]] = None,
         *,
         k8s_config_path: Optional[str] = None,
@@ -295,9 +293,8 @@ class SparkEnvConfiger:
         if not custom_config:
             custom_config = dict()
 
-        if not self.master_configured:
-            logger.info(f"Config master to connect-server mode accroding mode {mode}")
-
+        if mode:
+            logger.info(f"Config master to connect-server via {mode} mode")
             if mode == "local":
                 self.config_local(custom_config)
             elif mode == "k8s":

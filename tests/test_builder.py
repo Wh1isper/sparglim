@@ -58,8 +58,8 @@ def test_deploy_mode(config_builder: ConfigBuilder, mode: str, k8s_config_path):
         config_mode(k8s_config_path=k8s_config_path)
     else:
         config_mode()
-
-    assert config_builder.master_configured
+    if mode != "connect_server":
+        assert config_builder.master_configured
 
     if mode in ["local", "k8s"]:
         with pytest.raises(UnconfigurableError) as e:
