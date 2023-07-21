@@ -290,6 +290,8 @@ class SparkEnvConfiger:
         self,
         mode: Literal["local", "k8s"] = "local",
         custom_config: Optional[Dict[str, Any]] = None,
+        *,
+        k8s_config_path: Optional[str] = None,
     ) -> SparkEnvConfiger:
         if not custom_config:
             custom_config = dict()
@@ -300,9 +302,11 @@ class SparkEnvConfiger:
             if mode == "local":
                 self.config_local(custom_config)
             elif mode == "k8s":
-                self.config_k8s(custom_config)
+                self.config_k8s(custom_config, k8s_config_path=k8s_config_path)
             else:
                 raise UnconfigurableError(f"Unknown mode: {mode}")
+        if k8s_config_path and mode != "k8s":
+            logger.warning(f"k8s_config_path has no effort for mode: {mode}")
         logger.info(f"Config connect server")
         self.config(self._config_from_env(self._connect_server))
         return self
