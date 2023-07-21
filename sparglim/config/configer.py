@@ -60,6 +60,10 @@ class SparkEnvConfiger:
         "spark.hadoop.fs.s3a.path.style.access": ("S3_PATH_STYLE_ACCESS", None),
         "spark.hadoop.fs.s3a.bucket.all.committer.magic.enabled": ("S3_MAGIC_COMMITTER", None),
     }
+    _kerberos = {
+        "spark.kerberos.keytab": ("SPARGIM_KERBEROS_KEYTAB", None),
+        "spark.kerberos.principal": ("SPARGIM_KERBEROS_PRINCIPAL", None),
+    }
     _local = {
         "spark.master": ("SPARGLIM_MASTER", "local[*]"),
         "spark.driver.memory": ("SPARGLIM_LOCAL_MEMORY", "512m"),
@@ -126,6 +130,7 @@ class SparkEnvConfiger:
         self.default_config_mapper: ConfigEnvMapper = {
             **self._basic,
             **self._s3,
+            **self._kerberos,
         }
 
         self._config: Config
