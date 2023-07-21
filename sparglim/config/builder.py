@@ -21,7 +21,7 @@ class ConfigBuilder(SparkEnvConfiger, metaclass=Singleton):
     @property
     def spark_config(self) -> SparkConf:
         config = []
-        for k, v in self._config.items():
+        for k, v in self.get_all().items():
             config.append((k, v))
 
         return SparkConf().setAll(config)

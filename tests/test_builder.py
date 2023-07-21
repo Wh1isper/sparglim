@@ -67,43 +67,43 @@ def test_deploy_mode(config_builder: ConfigBuilder, mode: str, k8s_config_path):
 
 
 def test_merge(config_builder: ConfigBuilder):
-    prev = config_builder._config.copy()
+    prev = config_builder.get_all().copy()
     to_merge = {"a": "b"}
     config_builder._merge_config(to_merge)
-    assert config_builder._config == {**prev, **to_merge}
+    assert config_builder.get_all() == {**prev, **to_merge}
 
     to_cover = {"a": "c"}
     config_builder._merge_config(to_cover)
-    assert config_builder._config == {**prev, **to_cover}
+    assert config_builder.get_all() == {**prev, **to_cover}
 
 
 def test_config(config_builder: ConfigBuilder):
-    prev = config_builder._config.copy()
+    prev = config_builder.get_all().copy()
     to_merge = {"spark.app.name": "appname"}
     config_builder.config(to_merge)
-    assert config_builder._config == {**prev, **to_merge}
+    assert config_builder.get_all() == {**prev, **to_merge}
 
     to_cover = {"spark.app.name": "appname2"}
     config_builder.config(to_cover)
-    assert config_builder._config == {**prev, **to_cover}
+    assert config_builder.get_all() == {**prev, **to_cover}
 
 
 def test_env(config_builder: ConfigBuilder, monkeypatch):
     config_builder = patch_env(config_builder, monkeypatch, {"SPAGLIM_APP_NAME": "testapp"})
-    assert config_builder._config["spark.app.name"] == "testapp"
+    assert config_builder.get_all()["spark.app.name"] == "testapp"
 
 
 def test_create(config_builder: ConfigBuilder):
     spark = config_builder.get_or_create()
     config_builder.get_or_create() == spark
-    verify_spark(spark, config_builder._config)
+    verify_spark(spark, config_builder.get_all())
 
     old_spark = spark
 
     config_builder = config_builder.clear()
     spark = config_builder.get_or_create()
     assert old_spark != spark
-    verify_spark(spark, config_builder._config)
+    verify_spark(spark, config_builder.get_all())
 
 
 s3_env_cases = [
@@ -149,14 +149,14 @@ def test_s3(
 ):
     config_builder = patch_env(config_builder, monkeypatch, env_mapper)
     config_builder.config_s3()
-    assert_contain(config_builder._config, expect_mapper)
+    assert_contain(config_builder.get_all(), expect_mapper)
 
     convert_mapper = {
         "spark.hadoop.fs.s3a.access.key": "convert-access-key",
         "spark.hadoop.fs.s3a.secret.key": "convert-secret-key",
     }
     config_builder.config_s3(convert_mapper)
-    assert_contain(config_builder._config, {**expect_mapper, **convert_mapper})
+    assert_contain(config_builder.get_all(), {**expect_mapper, **convert_mapper})
 
 
 # TODO:
@@ -225,7 +225,7 @@ def test_k8s(
 ):
     config_builder = patch_env(config_builder, monkeypatch, env_mapper)
     config_builder.config_k8s(k8s_config_path=k8s_config_path)
-    assert_contain(config_builder._config, expect_mapper)
+    assert_contain(config_builder.get_all(), expect_mapper)
 
 
 def test_k8s_no_config(config_builder: ConfigBuilder):
@@ -253,7 +253,7 @@ def test_connect_client(
 ):
     config_builder = patch_env(config_builder, monkeypatch, env_mapper)
     config_builder.config_connect_client()
-    assert_contain(config_builder._config, expect_mapper)
+    assert_contain(config_builder.get_all(), expect_mapper)
 
 
 connect_server_mapper = [
@@ -273,9 +273,7 @@ connect_server_mapper = [
         {
             # Test default value
         },
-        {
-            "spark.connect.grpc.binding.port": "15002",
-        },
+        {},
     ),
 ]
 
@@ -289,7 +287,7 @@ def test_connect_server(
 ):
     config_builder = patch_env(config_builder, monkeypatch, env_mapper)
     config_builder.config_connect_server()
-    assert_contain(config_builder._config, expect_mapper)
+    assert_contain(config_builder.get_all(), expect_mapper)
 
 
 if __name__ == "__main__":

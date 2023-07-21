@@ -72,7 +72,7 @@ class SparkEnvConfiger:
         "spark.remote": ("SPARGLIM_REMOTE", "sc://localhost:15002"),
     }
     _connect_server = {
-        "spark.connect.grpc.binding.port": ("SPARGLIM_CONNECT_SERVER_PORT", "15002"),
+        "spark.connect.grpc.binding.port": ("SPARGLIM_CONNECT_SERVER_PORT", None),
         "spark.connect.grpc.arrow.maxBatchSize": ("SPARGLIM_CONNECT_GRPC_ARROW_MAXBS", None),
         "spark.connect.grpc.maxInboundMessageSize": ("SPARGLIM_CONNECT_GRPC_MAXIM", None),
     }
@@ -145,6 +145,9 @@ class SparkEnvConfiger:
     @property
     def master_configured(self) -> bool:
         return self._config.master_configured
+
+    def get_all(self) -> Dict[str, str]:
+        return {k: v for k, v in self._config.items() if v is not None}
 
     def _config_from_env(self, mapper: ConfigEnvMapper) -> Dict[str, Any]:
         config = dict()
@@ -253,16 +256,12 @@ class SparkEnvConfiger:
             logger.exception(e)
             raise UnconfigurableError("Fail to load k8s config")
 
-        def set_if_not_none(config_dict, k, v):
-            if v is not None:
-                config_dict[k] = v
-
         k8s_config = {
             "spark.master": f"k8s://{url}",
+            "spark.kubernetes.authenticate.caCertFile": ca,
+            "spark.kubernetes.authenticate.clientKeyFile": key_file,
+            "spark.kubernetes.authenticate.clientCertFile": cert_file,
         }
-        set_if_not_none(k8s_config, "spark.kubernetes.authenticate.caCertFile", ca)
-        set_if_not_none(k8s_config, "spark.kubernetes.authenticate.clientKeyFile", key_file)
-        set_if_not_none(k8s_config, "spark.kubernetes.authenticate.clientCertFile", cert_file)
 
         self.config(
             {
