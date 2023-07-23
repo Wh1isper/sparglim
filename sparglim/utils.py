@@ -6,7 +6,28 @@ from pathlib import Path
 from typing import Dict, Optional
 
 
+def port_is_used(port: int) -> bool:
+    port = int(port)
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        sock.bind(("0.0.0.0", port))
+        return False
+    except OSError:
+        return True
+
+
 def get_spark_version() -> Optional[str]:
+    spark_home = os.getenv("SPARK_HOME")
+    if not spark_home:
+        return get_pyspark_version()
+    jars_dir: Path = Path(spark_home) / "jars"
+    for p in jars_dir.glob("spark-core*"):
+        # spark-core_2.12-3.4.1.jar -> 3.4.1
+        return p.stem.split("_")[-1].split("-")[-1]
+    return None
+
+
+def get_pyspark_version() -> Optional[str]:
     pyspark_version = None
     try:
         import pyspark
@@ -53,7 +74,3 @@ def get_host_ip():
 def set_if_not_none(config_dict: Dict, k, v):
     if v is not None:
         config_dict[k] = v
-
-
-if __name__ == "__main__":
-    print(get_host_ip())

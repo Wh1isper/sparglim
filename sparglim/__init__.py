@@ -7,10 +7,6 @@ __author__ = "wh1isper"
 __email__ = "9573586@qq.com"
 __version__ = "0.0.1a0"
 
+import findspark  # noqa
 
-try:  # noqa
-    import findspark  # noqa
-
-    findspark.init()  # noqa
-except ImportError:  # noqa
-    pass  # noqa
+findspark.init()  # noqa
