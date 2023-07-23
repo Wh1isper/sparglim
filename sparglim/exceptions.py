@@ -4,3 +4,7 @@
 
 class UnconfigurableError(Exception):
     ...
+
+
+class DaemonError(Exception):
+    ...
