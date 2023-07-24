@@ -143,6 +143,7 @@ class Daemon:
 
     def _wait_exit(self):
         signal.signal(signal.SIGINT, self.stop)
+        signal.signal(signal.SIGTERM, self.stop)
         signal.pause()
         self.daemon_pid_file.unlink()
 
@@ -157,7 +158,7 @@ class Daemon:
             while True:
                 time.sleep(interval)
                 if not self.pid or self.is_stopping:
-                    # No pid file or stopping flag, assume stop server by self.stop()
+                    # No pid file or stopping flag, assume server stopped by self.stop()
                     logger.info("Exit daemon as server has been stopped")
                     self._tailer.stop()
                     return
@@ -173,7 +174,7 @@ class Daemon:
                     # We have pid file and pid in file is the same as daemon_pid, but no process, restart
                     self._start()
                     daemon_process = psutil.Process(self.pid)
-                    # Restart tailer, old tailer is already exited, just start a new one
+                    # Start a new tailer for new pid
                     self._tailer.stop()
                     self._tailer = Tailer(self.log_file.as_posix(), daemon_process.pid).start()
 
@@ -206,7 +207,7 @@ class Daemon:
             try:
                 p.terminate()
                 logger.info("Wating for connect server to stop")
-                p.wait(10)
+                p.wait(30)
             except psutil.TimeoutExpired:
                 logger.warning("Timeout for terminate connect server, kill it")
                 p.kill()
