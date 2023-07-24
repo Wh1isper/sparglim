@@ -44,6 +44,7 @@ class Daemon:
         self.pid_dir = self.root_dir / "pids"  # SPARK_PID_DIR
         self.log_glob_format = f"spark-{self.SPARK_IDENT_STRING}-*.out"
         self.pid_glob_format = f"spark-{self.SPARK_IDENT_STRING}-*.pid"
+        self.daemon_pid_file = self.pid_dir / f"daemon.pid"
 
         self.spark_cmd_dir = Path(f"{os.getenv('SPARK_HOME')}/sbin")
         self.start_cmd_path = self.spark_cmd_dir / "start-connect-server.sh"
@@ -103,7 +104,13 @@ class Daemon:
         # If it is already running, just daemon it
         if not self.pid or not psutil.pid_exists(self.pid):
             self._start()
-        # FIXME: Record current process pid to file for avoiding duplicate daemon
+        if self.daemon_pid_file.exists():
+            d_pid = self.daemon_pid_file.read_text()
+            if psutil.pid_exists(int(d_pid)):
+                logger.warning(f"Daemon is already running, pid: {d_pid}, exit")
+                return
+        else:
+            self.daemon_pid_file.write_text(str(os.getpid()))
         self._launch_daemon()
         self._wait_exit()
 
@@ -137,6 +144,7 @@ class Daemon:
     def _wait_exit(self):
         signal.signal(signal.SIGINT, self.stop)
         signal.pause()
+        self.daemon_pid_file.unlink()
 
     def _daemon_and_tail(self):
         daemon_pid = self.pid
@@ -177,7 +185,7 @@ class Daemon:
         count = 1
         for log_file in self.log_dir.glob(self.log_glob_format):
             logger.debug(f"Rotate {log_file.as_posix()}")
-            log_file.rename(log_file.with_suffix(f".{count}.rotate.log.{now}"))
+            log_file.rename(log_file.with_suffix(f".{now}.log.rotate.{count}"))
             count += 1
 
     def _launch_daemon(self):
@@ -220,4 +228,5 @@ class Daemon:
 
 if __name__ == "__main__":
     d = Daemon()
+
     d.start_and_daemon()
