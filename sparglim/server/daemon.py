@@ -4,7 +4,10 @@ import os
 import signal
 import subprocess
 import sys
+import threading
+import time
 from datetime import datetime
+from functools import wraps
 from pathlib import Path
 from typing import List, Optional
 
@@ -13,6 +16,7 @@ import psutil
 from sparglim.config import SparkEnvConfiger
 from sparglim.exceptions import DaemonError, UnconfigurableError
 from sparglim.log import logger
+from sparglim.server.tailer import Tailer
 from sparglim.utils import get_scala_version, get_spark_version, port_is_used
 
 
@@ -29,12 +33,10 @@ class Daemon:
         self,
         mode: str = "local",
         root_dir: str = "./",
-        port: str = "15002",
         *,
         k8s_config_path: Optional[str] = None,
     ):
         self.mode = mode or os.getenv(self.ENV_MASTER_MODE, self.DEFAULT_MODE)
-        self.daemon_config = {"spark.connect.grpc.binding.port": port}
 
         self.root_dir = Path(root_dir)
 
@@ -59,12 +61,12 @@ class Daemon:
                 f"org.apache.spark:spark-connect_{SCALA_VERSION}:{SPARK_VERSION}"
             )
         self.builder = SparkEnvConfiger().config_connect_server(
-            self.mode, self.daemon_config, k8s_config_path=k8s_config_path
+            self.mode, k8s_config_path=k8s_config_path
         )
 
-        # TODO: They may be thread?
-        self.daemoner = None
-        self.tailer = None
+        self._tailer: Optional[Tailer] = None
+        self._daemon: Optional[threading.Thread] = None
+        self.is_stopping: bool = False
 
     @property
     def config(self) -> List[str]:
@@ -94,13 +96,14 @@ class Daemon:
 
     @property
     def port(self) -> str:
-        return self.daemon_config["spark.connect.grpc.binding.port"]
+        return self.builder.get_all().get("spark.connect.grpc.binding.port", 15002)
 
-    def start_or_daemon(self):
+    def start_and_daemon(self):
         # Start spark connect server and daemon it
         # If it is already running, just daemon it
-        if not self.pid or psutil.pid_exists(self.pid):
+        if not self.pid or not psutil.pid_exists(self.pid):
             self._start()
+        # FIXME: Record current process pid to file for avoiding duplicate daemon
         self._launch_daemon()
         self._wait_exit()
 
@@ -135,15 +138,39 @@ class Daemon:
         signal.signal(signal.SIGINT, self.stop)
         signal.pause()
 
-    def _daemon_pid(self):
-        # TODO: Daemon {pid}, if it is not running, restart it
+    def _daemon_and_tail(self):
         daemon_pid = self.pid
+        logger.debug(f"Daemon pid {daemon_pid}")
         if not daemon_pid:
             raise DaemonError("No pid to daemon")
+        self._tailer = Tailer(self.log_file.as_posix(), daemon_pid).start()
 
-        if daemon_pid != self.pid:
-            # Pid changed, exit
-            logger.warning("Pid has changed, exit ")
+        def _(daemon_process, interval=1):
+            while True:
+                time.sleep(interval)
+                if not self.pid or self.is_stopping:
+                    # No pid file or stopping flag, assume stop server by self.stop()
+                    logger.info("Exit daemon as server has been stopped")
+                    self._tailer.stop()
+                    return
+
+                if daemon_process.pid != self.pid:
+                    # Pid changed, others take over
+                    logger.warning("pid has changed, exit")
+                    self._tailer.stop()
+                    return
+
+                if not daemon_process.is_running():
+                    logger.warning("Daemon process is not running, try to restart it")
+                    # We have pid file and pid in file is the same as daemon_pid, but no process, restart
+                    self._start()
+                    daemon_process = psutil.Process(self.pid)
+                    # Restart tailer, old tailer is already exited, just start a new one
+                    self._tailer.stop()
+                    self._tailer = Tailer(self.log_file.as_posix(), daemon_process.pid).start()
+
+        self._daemon = threading.Thread(target=_, args=(psutil.Process(daemon_pid),))
+        self._daemon.start()
 
     def _rotate_log(self):
         now = datetime.now()
@@ -153,29 +180,16 @@ class Daemon:
             log_file.rename(log_file.with_suffix(f".{count}.rotate.log.{now}"))
             count += 1
 
-    def _tail_log(self):
-        # TODO: tail log to stdout, may start a thread to do this
-        #       What will happen if the log file is deleted or rotated?
-        #       Or daemon restart server
-        pass
-
     def _launch_daemon(self):
         logger.info("Start daemon connect server")
         if not self.pid:
             raise UnconfigurableError("Connect server is not running")
-        logger.debug(f"Daemon pid {self.pid}")
+        self._daemon_and_tail()
 
-        # TODO: may change imple
-        self._daemon_pid()
-        self._tail_log()
-
-    def stop(self, sig=None, frame=None):
-        if not self.pid:
-            logger.warning("No connect server to stop")
-
+    def _stop_connect_server(self, pid: int):
         logger.info("Stop connect server")
         try:
-            p = psutil.Process(self.pid)
+            p = psutil.Process(pid)
         except psutil.NoSuchProcess:
             # Already stopped
             pass
@@ -189,13 +203,21 @@ class Daemon:
                 logger.warning("Timeout for terminate connect server, kill it")
                 p.kill()
 
-        if self.pid_file:
-            self.pid_file.unlink()
-        self._rotate_log()
-
-        sys.exit(0)
+    def stop(self, sig=None, frame=None):
+        self.is_stopping = True
+        try:
+            pid = self.pid
+            if pid:
+                self._stop_connect_server(pid)
+            if self.pid_file:
+                self.pid_file.unlink()
+            self._rotate_log()
+            if self._daemon:
+                self._daemon.join()
+        finally:
+            self._stopping = False
 
 
 if __name__ == "__main__":
     d = Daemon()
-    d.start_or_daemon()
+    d.start_and_daemon()
