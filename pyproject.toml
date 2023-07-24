@@ -26,6 +26,8 @@ test = ["sparglim[all]", "pytest", "pytest-cov", "pytype"]
 # TODO: Docs and its dependencies
 dev = ["sparglim[test]"]
 
+[project.scripts]
+sparglim-server = "sparglim.server.cli:cli"
 
 [[project.authors]]
 name = "wh1isper"
