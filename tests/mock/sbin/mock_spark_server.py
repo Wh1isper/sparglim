@@ -30,8 +30,8 @@ def random_str():
 
 def start_write_random_str():
     while True:
-        time.sleep(1)
         log_file.append_text(random_str())
+        time.sleep(3)
 
 
 def stop(sig, frame):

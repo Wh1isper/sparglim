@@ -22,6 +22,12 @@ def start_mock_server():
     pid_file = pid_dir / f"spark-{spark_ident_string}-mock-server.pid"
     pid_file.write_text(str(p.pid))
 
+    log_dir = Path(os.environ["SPARK_LOG_DIR"])
+    log_dir.mkdir(parents=True, exist_ok=True)
+    spark_ident_string = os.environ["SPARK_IDENT_STRING"]
+    log_file = log_dir / f"spark-{spark_ident_string}-mock-server.out"
+    log_file.touch(exist_ok=True)
+
 
 if __name__ == "__main__":
     print("Starting Mock Spark Server...")

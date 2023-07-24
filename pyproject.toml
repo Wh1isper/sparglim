@@ -22,7 +22,7 @@ magic = ["sparglim[pyspark]", "ipython"]
 k8s = ["sparglim[pyspark]", "kubernetes"]
 
 all = ["sparglim[pyspark]", "sparglim[magic]", "sparglim[k8s]"]
-test = ["sparglim[all]", "pytest", "pytest-cov", "pytype"]
+test = ["sparglim[all]", "pytest", "pytest-cov", "pytype", "pytest-timeout"]
 # TODO: Docs and its dependencies
 dev = ["sparglim[test]"]
 

@@ -9,4 +9,7 @@ __version__ = "0.0.1a0"
 
 import findspark  # noqa
 
-findspark.init()  # noqa
+try:  # noqa
+    findspark.init()  # noqa
+except Exception:  # noqa
+    pass  # noqa
