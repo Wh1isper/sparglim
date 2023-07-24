@@ -93,11 +93,11 @@ class Daemon:
     def pid(self) -> Optional[int]:
         if not self.pid_file:
             return None
-        return int(self.pid_file.read_text())
+        return int(self.pid_file.read_text())  # type: ignore
 
     @property
-    def port(self) -> str:
-        return self.builder.get_all().get("spark.connect.grpc.binding.port", 15002)
+    def port(self) -> int:
+        return int(self.builder.get_all().get("spark.connect.grpc.binding.port", "15002"))
 
     def start_and_daemon(self):
         # Start spark connect server and daemon it
@@ -135,11 +135,13 @@ class Daemon:
             stderr=sys.stderr,
         )
         p.wait()
-        logger.info(
-            f"Connect server started, pid: {self.pid}, logs {self.log_file.absolute().as_posix()}"
-        )
 
         assert self.pid
+        assert self.log_file
+
+        logger.info(
+            f"Connect server started, pid: {self.pid}, logs {self.log_file.absolute().as_posix()}"  # type: ignore
+        )
 
     def _wait_exit(self):
         signal.signal(signal.SIGINT, self.stop)
@@ -152,7 +154,7 @@ class Daemon:
         logger.debug(f"Daemon pid {daemon_pid}")
         if not daemon_pid:
             raise DaemonError("No pid to daemon")
-        self._tailer = Tailer(self.log_file.as_posix(), daemon_pid).start()
+        self._tailer = Tailer(self.log_file.as_posix(), daemon_pid).start()  # type: ignore
 
         def _(daemon_process, interval=1):
             while True:

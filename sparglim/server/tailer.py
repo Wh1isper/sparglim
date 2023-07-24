@@ -15,7 +15,7 @@ class Tailer:
     def start(self) -> Tailer:
         if self._task and self._task.poll() is None:
             logger.info("Tailer is already running")
-            return
+            return self
         logger.info(f"Start tailer by cmd: {self.cmd}")
         self._task = subprocess.Popen(
             self.cmd,

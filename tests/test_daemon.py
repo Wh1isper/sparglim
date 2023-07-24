@@ -36,12 +36,12 @@ def tmppath(tmpdir):
     shutil.rmtree(tmppath.as_posix())
 
 
-@pytest.mark.timeout(45)
+@pytest.mark.timeout(35)
 def test_daemon(monkeypatch, spark_home, tmppath):
     monkeypatch.setenv("SPARK_HOME", spark_home)
 
     def _interrupt():
-        time.sleep(10)
+        time.sleep(2)
         os.kill(os.getpid(), signal.SIGTERM)
 
     threading.Thread(target=_interrupt, daemon=True).start()

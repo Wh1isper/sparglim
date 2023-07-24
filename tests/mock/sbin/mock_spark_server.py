@@ -31,7 +31,7 @@ def random_str():
 def start_write_random_str():
     while True:
         log_file.append_text(random_str())
-        time.sleep(3)
+        time.sleep(1)
 
 
 def stop(sig, frame):
