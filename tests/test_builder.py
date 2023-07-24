@@ -11,8 +11,6 @@ from pyspark.sql import Row
 from sparglim.config import ConfigBuilder
 from sparglim.exceptions import UnconfigurableError
 
-_HERE = os.path.abspath(__file__)
-
 
 @pytest.fixture
 def config_builder():
