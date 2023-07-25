@@ -1,12 +1,12 @@
 #  Copyright (c) 2023 Wh1isper
 #  Licensed under the BSD 3-Clause
 import os
-from typing import List, Literal, Optional, Union
+from typing import List, Optional
 
 from IPython.core.magic import Magics, cell_magic, line_magic, magics_class
 from pyspark.sql import SparkSession
 
-from sparglim.config import ConfigBuilder
+from sparglim.config.builder import ConfigBuilder
 from sparglim.exceptions import UnconfigurableError
 from sparglim.log import logger
 

@@ -13,7 +13,7 @@ from typing import List, Optional
 
 import psutil
 
-from sparglim.config import SparkEnvConfiger
+from sparglim.config.configer import SparkEnvConfiger
 from sparglim.exceptions import DaemonError, UnconfigurableError
 from sparglim.log import logger
 from sparglim.server.tailer import Tailer

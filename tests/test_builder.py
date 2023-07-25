@@ -8,7 +8,7 @@ from typing import Dict
 import pytest
 from pyspark.sql import Row
 
-from sparglim.config import ConfigBuilder
+from sparglim.config.builder import ConfigBuilder
 from sparglim.exceptions import UnconfigurableError
 
 
