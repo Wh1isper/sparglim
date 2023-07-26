@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: sparglim-app
-          image: wh1isper/sparglim-lab:dev
+          image: wh1isper/jupyterlab-sparglim:dev
           ports:
             - containerPort: 8888
           imagePullPolicy: Never

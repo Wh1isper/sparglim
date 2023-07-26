@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: sparglim-server
-          image: wh1isper/sparglim-server
+          image: wh1isper/jupyterlab-sparglim
           ports:
             - containerPort: 15002
           imagePullPolicy: IfNotPresent
