@@ -21,7 +21,7 @@ spec:
           image: wh1isper/sparglim-server:dev
           ports:
             - containerPort: 15002
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Never
           env:
             - name: SPARGLIM_SERVER_MODE
               value: "k8s"
