@@ -1,14 +1,6 @@
 FROM wh1isper/spark-connector-server:3.4.1
 
-USER root
-
-RUN set -ex && \
-    apt-get update && \
-    apt install -y python3-pip
-
 RUN pip install sparglim
-
-USER executor
 
 ENTRYPOINT [ "tini" ,"--"]
 CMD [ "sparglim-server", "start" ]
