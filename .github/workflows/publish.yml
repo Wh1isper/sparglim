@@ -61,3 +61,25 @@ jobs:
         file: ./docker/Dockerfile.sparglim-server
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/sparglim-server:${{  github.ref_name }}
+
+    # Build latest if release
+    -
+      name: Build and push jupyterlab-sparglim_latest
+      id: docker_build_jupyterlab_sparglim_latest
+      if: '!github.event.prerelease'
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        file: ./docker/Dockerfile.jupyterlab-sparglim
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/jupyterlab-sparglim:latest
+    -
+      name: Build and push sparglim-server_latest
+      if: '!github.event.prerelease'
+      id: docker_build_sparglim_server_latest
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        file: ./docker/Dockerfile.sparglim-server
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/sparglim-server:latest
