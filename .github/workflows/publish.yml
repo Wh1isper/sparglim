@@ -1,4 +1,4 @@
-name: Upload Python Package
+name: Upload Python Package and Docker Image
 
 on:
   release:
@@ -44,7 +44,7 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     -
-      name: Build and push
+      name: Build and push jupyterlab-sparglim
       id: docker_build_jupyterlab_sparglim
       uses: docker/build-push-action@v4
       with:
@@ -53,7 +53,7 @@ jobs:
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/jupyterlab-sparglim:${{  github.ref_name }}
     -
-      name: Build and push
+      name: Build and push sparglim-server
       id: docker_build_sparglim_server
       uses: docker/build-push-action@v4
       with:
