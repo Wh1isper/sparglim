@@ -1,0 +1,9 @@
+FROM wh1isper/spark-connector-server:3.4.1
+
+COPY --chown=executor:executor ./ ./sparglim
+RUN pip install --no-cache-dir ./sparglim
+
+ENTRYPOINT [ "tini" ,"--"]
+CMD [ "sparglim-server", "start" ]
+
+# docker build -t wh1isper/sparglim-server:dev -f dev/sparglim-server/Dockerfile.sparglim-server .
