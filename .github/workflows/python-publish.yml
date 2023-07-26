@@ -51,7 +51,7 @@ jobs:
         context: .
         file: ./docker/Dockerfile.jupyterlab-sparglim
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/jupyterlab-sparglim:${{  github.ref_name }}"
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/jupyterlab-sparglim:${{  github.ref_name }}
     -
       name: Build and push
       id: docker_build_sparglim_server
@@ -60,4 +60,4 @@ jobs:
         context: .
         file: ./docker/Dockerfile.sparglim-server
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/sparglim-server:${{  github.ref_name }}"
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/sparglim-server:${{  github.ref_name }}
