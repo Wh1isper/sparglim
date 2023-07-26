@@ -31,7 +31,7 @@ class Daemon:
 
     def __init__(
         self,
-        mode: str = "local",
+        mode: Optional[str] = None,
         root_dir: str = "./",
         *,
         k8s_config_path: Optional[str] = None,

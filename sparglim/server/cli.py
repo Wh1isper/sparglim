@@ -10,10 +10,13 @@ from sparglim.server.daemon import Daemon
 
 
 @click.command()
-@click.option("--mode", default="local")
+@click.option("--mode", default=None)
 @click.option("--root_dir", default="./")
 def start(mode, root_dir):
-    Daemon(mode=mode, root_dir=root_dir).start_and_daemon()
+    if mode:
+        Daemon(mode=mode, root_dir=root_dir).start_and_daemon()
+    else:
+        Daemon(root_dir=root_dir).start_and_daemon()
 
 
 @click.command()
