@@ -20,7 +20,7 @@ docker run \
 wh1isper/jupyterlab-sparglim
 ```
 
-Access `http://localhost:8888` in browser to use jupyterlab with `sparglim`. Then you can try [SQL Magic](###SQL%20Magic).
+Access `http://localhost:8888` in browser to use jupyterlab with `sparglim`. Then you can try [SQL Magic](#sql-magic).
 
 Run and Daemon a Spark Connect Server:
 
@@ -32,7 +32,7 @@ docker run \
 wh1isper/sparglim-server
 ```
 
-Access `http://localhost:4040` for Spark-UI and `sc://localhost:15002` for Spark Connect Server. [Use sparglim to setup SparkSession to connect to Spark Connect Server](###%20Connect%20to%20Spark%20Connect%20Server).
+Access `http://localhost:4040` for Spark-UI and `sc://localhost:15002` for Spark Connect Server. [Use sparglim to setup SparkSession to connect to Spark Connect Server](#connect-to-spark-connect-server).
 
 ## Install
 
@@ -55,15 +55,15 @@ Access `http://localhost:4040` for Spark-UI and `sc://localhost:15002` for Spark
 
 ### PySpark App
 
-To config Spark on k8s for Data explorations, see [example/jupyter-sparglim-on-k8s](./examples/jupyter-sparglim-on-k8s)
+To config Spark on k8s for Data explorations, see [examples/jupyter-sparglim-on-k8s](./examples/jupyter-sparglim-on-k8s)
 
 To config Spark for ELT Application/Service, see [pyspark-sampling](https://github.com/Wh1isper/pyspark-sampling/)
 
 ### Spark Connect Server on K8S
 
-To daemon Spark Connect Server on K8S, see [example/sparglim-server](./examples/sparglim-server)
+To daemon Spark Connect Server on K8S, see [examples/sparglim-server](./examples/sparglim-server)
 
-To daemon Spark Connect Server on K8S and Connect it in JupyterLab , see [example/jupyter-sparglim-sc](./examples/jupyter-sparglim-sc)
+To daemon Spark Connect Server on K8S and Connect it in JupyterLab , see [examples/jupyter-sparglim-sc](./examples/jupyter-sparglim-sc)
 
 ### Connect to Spark Connect Server
 
