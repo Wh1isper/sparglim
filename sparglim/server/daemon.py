@@ -55,8 +55,12 @@ class Daemon:
 
         SPARK_VERSION = os.getenv("SPARK_VERSION", get_spark_version())
         SCALA_VERSION = os.getenv("SCALA_VERSION", get_scala_version())
+        add_connect_package = os.getenv("SPARGLIM_SERVER_CONNECT_PACKAGES", "false") in [
+            "true",
+            "True",
+        ]
         self.daemon_package = []
-        if SPARK_VERSION and SCALA_VERSION:
+        if add_connect_package and (SPARK_VERSION and SCALA_VERSION):
             # Specify the spark-connect package or use the default one
             self.daemon_package.append(
                 f"org.apache.spark:spark-connect_{SCALA_VERSION}:{SPARK_VERSION}"
@@ -71,11 +75,20 @@ class Daemon:
 
     @property
     def config(self) -> List[str]:
-        return [f"--conf {k}={v}" for k, v in self.builder.get_all().items()]
+        config = []
+        for k, v in self.builder.get_all().items():
+            config.append("--conf")
+            config.append(f"{k}={v}")
+        return config
 
     @property
     def packages(self) -> List[str]:
-        return [f"--packages {p}" for p in self.daemon_package]
+        packages = []
+        for p in self.daemon_package:
+            packages.append("--packages")
+            packages.append(p)
+
+        return packages
 
     @property
     def pid_file(self) -> Optional[Path]:
@@ -140,7 +153,8 @@ class Daemon:
         assert self.log_file
 
         logger.info(
-            f"Connect server started, pid: {self.pid}, logs {self.log_file.absolute().as_posix()}"  # type: ignore
+            # type: ignore
+            f"Connect server started, pid: {self.pid}, logs {self.log_file.absolute().as_posix()}"
         )
 
     def _wait_exit(self):
