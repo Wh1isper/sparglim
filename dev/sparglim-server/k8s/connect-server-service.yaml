@@ -13,7 +13,7 @@ spec:
     - name: spark-ui
       protocol: TCP
       port: 4040
-      nodePort: 30042
+      nodePort: 30040
       targetPort: 4040
   selector:
     app: sparglim-server
