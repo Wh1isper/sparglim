@@ -106,7 +106,8 @@ class SparkMagic(Magics):
     def _execute(self, sql=str):
         r = None
         for s in sql.split(";"):
-            r = self._execute_one(s.strip())
+            if s.strip():  # ignore empty sql
+                r = self._execute_one(s.strip())
         return r
 
     @line_magic
