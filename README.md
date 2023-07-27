@@ -9,6 +9,10 @@
 
 Sparglim is aimed at providing a clean solution for PySpark applications in cloud-native scenarios (On K8S、Connect Server etc.).
 
+**This is a fledgling project, looking forward to any PRs, Feature Requests and discussions!**
+
+🌟✨⭐ Start to support!
+
 ## Quick Start
 
 Run Jupyterlab with `sparglim` docker image:
@@ -56,7 +60,7 @@ Access `http://localhost:4040` for Spark-UI and `sc://localhost:15002` for Spark
 
 To config Spark on k8s for Data explorations, see [examples/jupyter-sparglim-on-k8s](./examples/jupyter-sparglim-on-k8s)
 
-To config Spark for ELT Application/Service, see [pyspark-sampling](https://github.com/Wh1isper/pyspark-sampling/)
+*(TODO)To config Spark for ELT Application/Service, see [pyspark-sampling](https://github.com/Wh1isper/pyspark-sampling/)*
 
 ### Spark Connect Server on K8S
 
