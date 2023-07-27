@@ -34,13 +34,12 @@ wh1isper/sparglim-server
 
 Access `http://localhost:4040` for Spark-UI and `sc://localhost:15002` for Spark Connect Server. [Use sparglim to setup SparkSession to connect to Spark Connect Server](#connect-to-spark-connect-server).
 
-## Install
+## Install: `pip install sparglim[all]`
 
 - Install only for config and daemon spark connect server `pip install sparglim`
-- Install for pyspark app `pip install sparglim["pyspark"]`
-- Install for using magic within ipython/jupyter (will also install pyspark) `pip install sparglim["magic"]`
-- Install for pyspark app on k8s `pip install sparglim["k8s"]`
-- Install for all above (such as using magic in jupyterlab on k8s) `pip install sparglim["all"]`
+- Install for pyspark app `pip install sparglim[pyspark]`
+- Install for using magic within ipython/jupyter (will also install pyspark) `pip install sparglim[magic]`
+- **Install for all above** (such as using magic in jupyterlab on k8s) `pip install sparglim[all]`
 
 ## Feature
 
@@ -134,19 +133,29 @@ Query the view by `%SQL`:
 %sql SELECT * FROM tb
 ```
 
-or
+`%SQL` result dataframe can be assigned to a variable:
+
+```ipython
+df = %sql SELECT * FROM tb
+df
+```
+
+or `%%SQL` can be used to execute multiple statements:
 
 ```ipython
 %%sql SELECT
         *
         FROM
-        tb
+        tb;
 ```
 
 You can also using Spark SQL to load data from external data source, such as:
 
 ```ipython
-%sql CREATE TABLE tb_people USING json OPTIONS (path "/path/to/file.json")
+%%sql CREATE TABLE tb_people
+USING json
+OPTIONS (path "/path/to/file.json");
+Show tables;
 ```
 
 ## Develop

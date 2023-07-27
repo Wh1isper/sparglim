@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sparglim-server-service
+  namespace: sparglim
+spec:
+  ports:
+    - name: connect-server
+      protocol: TCP
+      port: 15002
+      nodePort: 30052
+      targetPort: 15002
+    - name: spark-ui
+      protocol: TCP
+      port: 4040
+      nodePort: 30040
+      targetPort: 4040
+  selector:
+    app: sparglim-server
+  type: NodePort

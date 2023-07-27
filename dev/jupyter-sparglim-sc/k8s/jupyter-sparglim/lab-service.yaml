@@ -10,11 +10,6 @@ spec:
       port: 8888
       nodePort: 30888
       targetPort: 8888
-    - name: spark-ui
-      protocol: TCP
-      port: 4040
-      nodePort: 30040
-      targetPort: 4040
   selector:
     app: sparglim-app
   type: NodePort

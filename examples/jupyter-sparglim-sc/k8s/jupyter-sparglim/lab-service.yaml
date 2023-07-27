@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sparglim-lab-service
+  namespace: sparglim
+spec:
+  ports:
+    - name: lab
+      protocol: TCP
+      port: 8888
+      nodePort: 30888
+      targetPort: 8888
+  selector:
+    app: sparglim-app
+  type: NodePort

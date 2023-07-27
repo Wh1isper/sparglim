@@ -18,13 +18,15 @@ spec:
     spec:
       containers:
         - name: sparglim-app
-          image: wh1isper/jupyterlab-sparglim
+          image: wh1isper/jupyterlab-sparglim:dev
           ports:
             - containerPort: 8888
-          imagePullPolicy: Always
+          imagePullPolicy: Never
           env:
             - name: SPARGLIM_SQL_MODE
-              value: "k8s"
+              value: connect_client
+            - name: SPARGLIM_REMOTE
+              value: "sc://sparglim-server-headless-service:15002"
             - name: SPARGLIM_DRIVER_HOST
               valueFrom:
                 fieldRef:
