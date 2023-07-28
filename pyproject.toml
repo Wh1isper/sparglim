@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "sparglim"
 description = "sparglim"
-keywords = ["sparglim"]
+keywords = ["sparglim", "pyspark", "magic", "ipython", "spark"]
 requires-python = ">=3.8"
 dependencies = ["loguru", "click", "findspark", "psutil", "kubernetes"]
 dynamic = ["version"]

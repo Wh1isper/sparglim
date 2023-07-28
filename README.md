@@ -9,7 +9,7 @@
 
 Sparglim is aimed at providing a clean solution for PySpark applications in cloud-native scenarios (On K8S、Connect Server etc.).
 
-**This is a fledgling project, looking forward to any PRs, Feature Requests and discussions!**
+**This is a fledgling project, looking forward to any PRs, Feature Requests and Discussions!**
 
 🌟✨⭐ Start to support!
 

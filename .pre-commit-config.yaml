@@ -1,4 +1,5 @@
 repos:
+  # FIXME: This is slow and unreliable.
   - repo: local
     hooks:
       - id: generate-config
