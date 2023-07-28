@@ -8,6 +8,9 @@ from collections import UserDict
 from functools import wraps
 from typing import Any, Dict, Iterable, Literal, Optional, Tuple, Union
 
+from kubernetes.config.incluster_config import SERVICE_TOKEN_FILENAME
+
+from sparglim.config.k8s import INCLUSTER, get_k8s_config, get_namespace
 from sparglim.exceptions import UnconfigurableError
 from sparglim.log import logger
 from sparglim.utils import get_host_ip
@@ -219,15 +222,6 @@ class SparkEnvConfiger:
         *,
         k8s_config_path: Optional[str] = None,
     ) -> SparkEnvConfiger:
-        try:
-            from kubernetes.config.incluster_config import SERVICE_TOKEN_FILENAME
-
-            from sparglim.config.k8s import INCLUSTER, get_k8s_config, get_namespace
-        except ImportError:
-            raise UnconfigurableError(
-                "kubernetes is not installed, try install package `sparglim[k8s]`"
-            )
-
         logger.info(f"Config master: k8s mode")
         if not custom_config:
             custom_config = dict()
