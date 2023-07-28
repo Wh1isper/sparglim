@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-pip install ./
+pip install -e ./
 python generate_config_docs.py
