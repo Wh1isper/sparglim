@@ -125,14 +125,13 @@ class SparkEnvConfiger:
         #       Not sure when it will be supported
         #       Welcome PR or discussion here!
     }
+    default_config_mapper = {
+        **_basic,
+        **_s3,
+        **_kerberos,
+    }
 
     def __init__(self) -> None:
-        self.default_config_mapper: ConfigEnvMapper = {
-            **self._basic,
-            **self._s3,
-            **self._kerberos,
-        }
-
         self._config: Config
         self.initialize()
 
@@ -186,6 +185,17 @@ class SparkEnvConfiger:
         self.config(
             {
                 **self._config_from_env(self._s3),
+                **custom_config,
+            }
+        )
+        return self
+
+    def config_kerberos(self, custom_config: Optional[Dict[str, Any]] = None) -> SparkEnvConfiger:
+        if not custom_config:
+            custom_config = dict()
+        self.config(
+            {
+                **self._config_from_env(self._kerberos),
                 **custom_config,
             }
         )

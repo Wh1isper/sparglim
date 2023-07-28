@@ -1,4 +1,11 @@
 repos:
+  - repo: local
+    hooks:
+      - id: generate-config
+        name: Generate config
+        entry: python ./generate_config_docs.py
+        language: system
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
