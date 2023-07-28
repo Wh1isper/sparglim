@@ -47,7 +47,7 @@ Access `http://localhost:4040` for Spark-UI and `sc://localhost:15002` for Spark
 
 ## Feature
 
-- Config Spark via environment variables, see [config spark](./config.md)
+- [Config Spark via environment variables](./config.md)
 - `%SQL` and `%%SQL` magic for executing Spark SQL in IPython/Jupyter
   - SQL statement can be written in multiple lines, support using `;` to separate statements
   - Support config `connect client`, see [Spark Connect Overview](https://spark.apache.org/docs/latest/spark-connect-overview.html#spark-connect-overview)
@@ -56,13 +56,31 @@ Access `http://localhost:4040` for Spark-UI and `sc://localhost:15002` for Spark
 
 ## User cases
 
-### PySpark App
+### Basic
+
+```python
+from sparglim.config.builder import ConfigBuilder
+from datetime import datetime, date
+from pyspark.sql import Row
+
+# Create a local[*] spark session with s3&kerberos config
+spark = ConfigBuilder().get_or_create()
+
+df = spark.createDataFrame([
+    Row(a=1, b=2., c='string1', d=date(2000, 1, 1), e=datetime(2000, 1, 1, 12, 0)),
+    Row(a=2, b=3., c='string2', d=date(2000, 2, 1), e=datetime(2000, 1, 2, 12, 0)),
+    Row(a=4, b=5., c='string3', d=date(2000, 3, 1), e=datetime(2000, 1, 3, 12, 0))
+])
+df.show()
+```
+
+### Building a PySpark App
 
 To config Spark on k8s for Data explorations, see [examples/jupyter-sparglim-on-k8s](./examples/jupyter-sparglim-on-k8s)
 
-*TODO: To config Spark for ELT Application/Service, see [pyspark-sampling](https://github.com/Wh1isper/pyspark-sampling/)*
+To config Spark for ELT Application/Service, see project [pyspark-sampling](https://github.com/Wh1isper/pyspark-sampling/)
 
-### Spark Connect Server on K8S
+### Deploy Spark Connect Server on K8S (And Connect to it)
 
 To daemon Spark Connect Server on K8S, see [examples/sparglim-server](./examples/sparglim-server)
 
