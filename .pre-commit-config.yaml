@@ -1,12 +1,12 @@
 repos:
   # FIXME: This is slow and unreliable.
-  - repo: local
-    hooks:
-      - id: generate-config
-        name: Generate config
-        entry: ./generate-config.sh
-        language: system
-        verbose: true
+  # - repo: local
+  #   hooks:
+  #     - id: generate-config
+  #       name: Generate config
+  #       entry: ./generate-config.sh
+  #       language: system
+  #       verbose: true
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
