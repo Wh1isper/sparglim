@@ -1,9 +1,11 @@
-![](https://img.shields.io/github/license/wh1isper/sparglim)
-![](https://img.shields.io/github/v/release/wh1isper/sparglim?logo=github)
-![](https://img.shields.io/github/v/release/wh1isper/sparglim?include_prereleases&label=pre-release&logo=github)
+![](https://github.com/Wh1isper/sparglim/actions/workflows/python-package.yml/badge.svg)
 ![](https://img.shields.io/pypi/dm/sparglim)
 ![](https://img.shields.io/github/last-commit/wh1isper/sparglim)
 ![](https://img.shields.io/pypi/pyversions/sparglim)
+![](https://img.shields.io/github/license/wh1isper/sparglim)
+![](https://img.shields.io/github/v/release/wh1isper/sparglim?logo=github)
+![](https://img.shields.io/github/v/release/wh1isper/sparglim?include_prereleases&label=pre-release&logo=github)
+
 
 # Sparglim ✨
 
