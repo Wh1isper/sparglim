@@ -9,7 +9,7 @@ import pytest
 from pyspark.sql import Row
 
 from sparglim.config.builder import ConfigBuilder
-from sparglim.exceptions import UnconfigurableError
+from sparglim.exceptions import AlreadyConfiguredError, UnconfigurableError
 
 
 @pytest.fixture
@@ -60,7 +60,7 @@ def test_deploy_mode(config_builder: ConfigBuilder, mode: str, k8s_config_path):
         assert config_builder.master_configured
 
     if mode in ["local", "k8s"]:
-        with pytest.raises(UnconfigurableError) as e:
+        with pytest.raises(AlreadyConfiguredError) as e:
             config_mode()
 
 

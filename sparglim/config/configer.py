@@ -11,7 +11,7 @@ from typing import Any, Dict, Iterable, Literal, Optional, Tuple, Union
 from kubernetes.config.incluster_config import SERVICE_TOKEN_FILENAME
 
 from sparglim.config.k8s import INCLUSTER, get_k8s_config, get_namespace
-from sparglim.exceptions import UnconfigurableError
+from sparglim.exceptions import AlreadyConfiguredError, UnconfigurableError
 from sparglim.log import logger
 from sparglim.utils import get_host_ip
 
@@ -26,7 +26,7 @@ class Config(UserDict):
     def __setitem__(self, key: Any, item: Any) -> None:
         will_config_master = key in ["spark.master", "spark.remote"]
         if self.master_configured and will_config_master:
-            raise UnconfigurableError("Spark master/remote already configured, try clear() first")
+            raise AlreadyConfiguredError("Spark master/remote already configured.")
         if will_config_master:
             self.master_configured = True
 
@@ -185,36 +185,33 @@ class SparkEnvConfiger:
     def config_s3(self, custom_config: Optional[Dict[str, Any]] = None) -> SparkEnvConfiger:
         if not custom_config:
             custom_config = dict()
-        self.config(
+        return self.config(
             {
                 **self._config_from_env(self._s3),
                 **custom_config,
             }
         )
-        return self
 
     def config_kerberos(self, custom_config: Optional[Dict[str, Any]] = None) -> SparkEnvConfiger:
         if not custom_config:
             custom_config = dict()
-        self.config(
+        return self.config(
             {
                 **self._config_from_env(self._kerberos),
                 **custom_config,
             }
         )
-        return self
 
     def config_local(self, custom_config: Optional[Dict[str, Any]] = None) -> SparkEnvConfiger:
         logger.info(f"Config master: local mode")
         if not custom_config:
             custom_config = dict()
-        self.config(
+        return self.config(
             {
                 **self._config_from_env(self._local),
                 **custom_config,
             }
         )
-        return self
 
     def config_k8s(
         self,
@@ -265,27 +262,25 @@ class SparkEnvConfiger:
             "spark.kubernetes.authenticate.clientCertFile": cert_file,
         }
 
-        self.config(
+        return self.config(
             {
                 **env_config,
                 **k8s_config,
                 **custom_config,
             }
         )
-        return self
 
     def config_connect_client(
         self, custom_config: Optional[Dict[str, Any]] = None
     ) -> SparkEnvConfiger:
         if not custom_config:
             custom_config = dict()
-        self.config(
+        return self.config(
             {
                 **self._config_from_env(self._connect_client),
                 **custom_config,
             }
         )
-        return self
 
     def config_connect_server(
         self,
@@ -308,5 +303,4 @@ class SparkEnvConfiger:
         if k8s_config_path and mode != "k8s":
             logger.warning(f"k8s_config_path has no effort for mode: {mode}")
         logger.info(f"Config connect server")
-        self.config(self._config_from_env(self._connect_server))
-        return self
+        return self.config(self._config_from_env(self._connect_server))

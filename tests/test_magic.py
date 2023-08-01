@@ -18,6 +18,10 @@ ipy = get_ipython()
 ipy.run_line_magic("load_ext", "sparglim.sql")
 
 
+def test_spark_init():
+    ipy.run_cell("spark")
+
+
 def test_sql():
     ipy.run_line_magic("sql", "SHOW DATABASES")
 

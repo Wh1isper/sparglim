@@ -1,10 +1,14 @@
-from typing import Optional
+#  Copyright (c) 2023 Wh1isper
+#  Licensed under the BSD 3-Clause License
+from __future__ import annotations
+
+from typing import Any, Dict, Optional
 
 from pyspark import SparkConf
 from pyspark.sql import SparkSession
 
 from sparglim.config.configer import SparkEnvConfiger
-from sparglim.exceptions import UnconfigurableError
+from sparglim.exceptions import AlreadyConfiguredError, UnconfigurableError
 from sparglim.log import logger
 from sparglim.utils import Singleton
 
@@ -46,3 +50,12 @@ class ConfigBuilder(SparkEnvConfiger, metaclass=Singleton):
             raise UnconfigurableError("SparkSession not created yet")
         logger.info(f"Set runtime config: {k}={v}")
         self._spark.conf.set(k, v)
+
+    def config(self, c: Dict[str, Any]) -> ConfigBuilder:
+        try:
+            super().config(c)
+        except AlreadyConfiguredError:
+            raise AlreadyConfiguredError(
+                "ConfigBuilder already configured, try get_or_create() or clear()"
+            )
+        return self

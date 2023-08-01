@@ -6,7 +6,6 @@
 ![](https://img.shields.io/github/v/release/wh1isper/sparglim?logo=github)
 ![](https://img.shields.io/github/v/release/wh1isper/sparglim?include_prereleases&label=pre-release&logo=github)
 
-
 # Sparglim ✨
 
 Sparglim is aimed at providing a clean solution for PySpark applications in cloud-native scenarios (On K8S、Connect Server etc.).
@@ -127,20 +126,14 @@ Load magic in IPython/Jupyter
 
 ```ipython
 %load_ext sparglim.sql
+spark # show SparkSession brief info
 ```
 
 Create a view:
 
 ```python
-from sparglim.config.builder import ConfigBuilder
-
-
 from datetime import datetime, date
 from pyspark.sql import Row
-
-c: ConfigBuilder = ConfigBuilder()
-spark = c.get_or_create()
-
 
 df = spark.createDataFrame([
             Row(a=1, b=2., c='string1', d=date(2000, 1, 1), e=datetime(2000, 1, 1, 12, 0)),
@@ -148,7 +141,6 @@ df = spark.createDataFrame([
             Row(a=4, b=5., c='string3', d=date(2000, 3, 1), e=datetime(2000, 1, 3, 12, 0))
         ])
 df.createOrReplaceTempView("tb")
-
 ```
 
 Query the view by `%SQL`:

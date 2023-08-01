@@ -8,3 +8,7 @@ class UnconfigurableError(Exception):
 
 class DaemonError(Exception):
     ...
+
+
+class AlreadyConfiguredError(UnconfigurableError):
+    ...

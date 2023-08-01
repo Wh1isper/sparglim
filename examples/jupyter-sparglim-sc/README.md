@@ -61,8 +61,7 @@ This will auto config SparkSession to `connect_client` mode, via env `SPARGLIM_S
 
 ```python
 %load_ext sparglim.sql
-from sparglim.config.builder import ConfigBuilder
-spark = ConfigBuilder().get_or_create() # No need to config_connect_client(), ConfigBuilder is a Singleton
+spark
 ```
 
 Test it:

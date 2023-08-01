@@ -14,10 +14,11 @@ from sparglim.log import logger
 @magics_class
 class SparkMagic(Magics):
     """
-    # Enable magic
+    # Enable magic, will initiliaze SparkSession as `spark`
 
         ```ipython
         %load_ext sparglim.sql
+        spark # show SparkSession brief info
         ```
 
     # Example:
@@ -27,10 +28,6 @@ class SparkMagic(Magics):
         ```python
         from datetime import datetime, date
         from pyspark.sql import Row
-
-        from sparglim.config.builder import ConfigBuilder
-        spark = ConfigBuilder().get_or_create()
-
 
         df = spark.createDataFrame([
             Row(a=1, b=2., c='string1', d=date(2000, 1, 1), e=datetime(2000, 1, 1, 12, 0)),

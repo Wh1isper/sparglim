@@ -5,7 +5,15 @@ from .magic import SparkMagic
 
 
 def load_ipython_extension(ipython):
-    ipython.register_magics(SparkMagic)
+
+    code = """
+print("Creating SparkSession as `spark`")
+from sparglim.config.builder import ConfigBuilder
+# ConfigBuilder is a singleton, and already configured by SparkMagic()
+spark = ConfigBuilder().get_or_create()
+"""
+    ipython.register_magics(SparkMagic)  # SparkMagic already has been initialized
+    ipython.run_cell(code)
 
 
 def unload_ipython_extension(ipython):
