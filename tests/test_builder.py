@@ -61,7 +61,10 @@ def test_deploy_mode(config_builder: ConfigBuilder, mode: str, k8s_config_path):
 
     if mode in ["local", "k8s"]:
         with pytest.raises(AlreadyConfiguredError) as e:
-            config_mode()
+            if mode == "k8s":
+                config_mode(k8s_config_path=k8s_config_path)
+            else:
+                config_mode()
 
 
 def test_merge(config_builder: ConfigBuilder):
