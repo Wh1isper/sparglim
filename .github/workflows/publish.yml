@@ -65,8 +65,8 @@ jobs:
     # Build latest if release
     -
       name: Build and push jupyterlab-sparglim_latest
+      if: '!github.event.release.prerelease'
       id: docker_build_jupyterlab_sparglim_latest
-      if: '!github.event.prerelease'
       uses: docker/build-push-action@v4
       with:
         context: .
@@ -75,7 +75,7 @@ jobs:
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/jupyterlab-sparglim:latest
     -
       name: Build and push sparglim-server_latest
-      if: '!github.event.prerelease'
+      if: '!github.event.release.prerelease'
       id: docker_build_sparglim_server_latest
       uses: docker/build-push-action@v4
       with:
