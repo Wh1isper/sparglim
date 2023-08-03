@@ -1,5 +1,11 @@
 # Making a new release of sparglim
 
+## Auto release
+
+When releasing on github, both the python package and the docker image are automatically released
+
+[Github Action](https://github.com/Wh1isper/sparglim/actions/workflows/publish.yml)
+
 ## Manual release
 
 ### Python package
@@ -31,4 +37,13 @@ Then to upload the package to PyPI, do:
 
 ```bash
 twine upload dist/*
+```
+
+
+### Docker
+
+```
+docker build -t wh1isper/sparglim-server:latest -f docker/Dockerfile.sparglim-server .
+
+docker build -t wh1isper/jupyterlab-sparglim:latest -f docker/Dockerfile.jupyterlab-sparglim .
 ```
