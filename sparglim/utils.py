@@ -49,6 +49,17 @@ def get_scala_version() -> Optional[str]:
     return None
 
 
+def exist_connect_server_package():
+    spark_home = os.getenv("SPARK_HOME")
+    if not spark_home:
+        return False
+    jars_dir: Path = Path(spark_home) / "jars"
+    for p in jars_dir.glob("spark-connect*"):
+        # eg. spark-connect_2.12-3.4.1.jar
+        return True
+    return False
+
+
 class Singleton(type):
     _instances = {}
 

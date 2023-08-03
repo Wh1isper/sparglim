@@ -17,7 +17,12 @@ from sparglim.config.configer import SparkEnvConfiger
 from sparglim.exceptions import DaemonError, UnconfigurableError
 from sparglim.log import logger
 from sparglim.server.tailer import Tailer
-from sparglim.utils import get_scala_version, get_spark_version, port_is_used
+from sparglim.utils import (
+    exist_connect_server_package,
+    get_scala_version,
+    get_spark_version,
+    port_is_used,
+)
 
 
 class Daemon:
@@ -55,13 +60,10 @@ class Daemon:
 
         SPARK_VERSION = os.getenv("SPARK_VERSION", get_spark_version())
         SCALA_VERSION = os.getenv("SCALA_VERSION", get_scala_version())
-        add_connect_package = os.getenv("SPARGLIM_SERVER_CONNECT_PACKAGES", "false") in [
-            "true",
-            "True",
-        ]
         self.daemon_package = []
-        if add_connect_package and (SPARK_VERSION and SCALA_VERSION):
-            # Specify the spark-connect package or use the default one
+        if not exist_connect_server_package() and (SPARK_VERSION and SCALA_VERSION):
+            # Specify the spark-connect package if no such package in $SPARK_HOME/jars
+            # Spark will download the package from maven repo
             self.daemon_package.append(
                 f"org.apache.spark:spark-connect_{SCALA_VERSION}:{SPARK_VERSION}"
             )
