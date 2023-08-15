@@ -5,7 +5,6 @@ from .magic import SparkMagic
 
 
 def load_ipython_extension(ipython):
-
     code = """
 print("Creating SparkSession as `spark`")
 from sparglim.config.builder import ConfigBuilder
