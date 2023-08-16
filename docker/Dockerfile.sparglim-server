@@ -5,4 +5,4 @@ RUN pip install sparglim
 ENTRYPOINT [ "tini" ,"--"]
 CMD [ "sparglim-server", "start" ]
 
-# docker buildx build --platform linux/amd64,linux/arm64/v8 -f docker/Dockerfile.sparglim-server --push .
+# docker buildx build --platform linux/amd64,linux/arm64/v8 -t wh1isper/sparglim-server:latest -f docker/Dockerfile.sparglim-server --push .
