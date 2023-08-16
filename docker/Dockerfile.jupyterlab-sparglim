@@ -1,7 +1,7 @@
 FROM wh1isper/pyspark-app-base:3.4.1
 
 USER root
-RUN  apt-get -y update && apt-get -y upgrade && apt-get install -y tini \
+RUN  apt-get -y update && apt-get -y upgrade && apt-get install -y gcc python3-dev tini \
     && rm -rf /var/lib/apt/lists/* &&  rm -rf /root/.cache && rm -rf /var/cache/apt/*
 
 USER application
@@ -10,4 +10,4 @@ RUN pip install --no-cache-dir jupyterlab sparglim[all]
 ENTRYPOINT ["tini","--","jupyter-lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--IdentityProvider.token=''"]
 EXPOSE 8888
 
-# docker build -t wh1isper/jupyterlab-sparglim:latest -f docker/Dockerfile.jupyterlab-sparglim .
+# docker buildx build --platform linux/amd64,linux/arm64/v8 -t wh1isper/jupyterlab-sparglim:latest -f docker/Dockerfile.jupyterlab-sparglim --push .
