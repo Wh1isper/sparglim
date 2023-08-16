@@ -55,6 +55,8 @@ jobs:
       id: docker_build_jupyterlab_sparglim
       uses: docker/build-push-action@v4
       with:
+        build-args: |
+          SPARGLIM_VERSION=${{ github.ref_name }}
         context: .
         platforms: linux/amd64,linux/arm64/v8
         file: ./docker/Dockerfile.jupyterlab-sparglim
@@ -65,6 +67,8 @@ jobs:
       id: docker_build_sparglim_server
       uses: docker/build-push-action@v4
       with:
+        build-args: |
+          SPARGLIM_VERSION=${{ github.ref_name }}
         context: .
         platforms: linux/amd64,linux/arm64/v8
         file: ./docker/Dockerfile.sparglim-server
@@ -79,6 +83,8 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         context: .
+        build-args: |
+          SPARGLIM_VERSION=${{ github.ref_name }}
         platforms: linux/amd64,linux/arm64/v8
         file: ./docker/Dockerfile.jupyterlab-sparglim
         push: true
@@ -89,6 +95,8 @@ jobs:
       id: docker_build_sparglim_server_latest
       uses: docker/build-push-action@v4
       with:
+        build-args: |
+          SPARGLIM_VERSION=${{ github.ref_name }}
         context: .
         platforms: linux/amd64,linux/arm64/v8
         file: ./docker/Dockerfile.sparglim-server

@@ -1,6 +1,8 @@
 FROM wh1isper/spark-connector-server:3.4.1
 
-RUN pip install sparglim
+ARG SPARGLIM_VERSION
+
+RUN pip install sparglim==${SPARGLIM_VERSION}
 
 ENTRYPOINT [ "tini" ,"--"]
 CMD [ "sparglim-server", "start" ]

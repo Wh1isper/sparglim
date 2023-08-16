@@ -1,4 +1,4 @@
-name: Build Docker Image manually
+name: Build Latest Docker Image manually
 
 on:
     workflow_dispatch: {}
@@ -11,7 +11,7 @@ jobs:
     strategy:
         fail-fast: false
         matrix:
-          sparglim-version: ["0.1.4", "0.1.3", "0.1.2", "0.1.1","0.1.0"]
+          latest-version: ["0.1.4"]
 
     runs-on: ubuntu-latest
 
@@ -31,26 +31,26 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     -
-      name: Build and push jupyterlab-sparglim
-      id: docker_build_jupyterlab_sparglim
+      name: Build and push jupyterlab-sparglim_latest
+      id: docker_build_jupyterlab_sparglim_latest
       uses: docker/build-push-action@v4
       with:
-        build-args: |
-            SPARGLIM_VERSION=${{ matrix.sparglim-version }}
         context: .
+        build-args: |
+            SPARGLIM_VERSION=${{ matrix.latest-version }}
         platforms: linux/amd64,linux/arm64/v8
         file: ./docker/Dockerfile.jupyterlab-sparglim
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/jupyterlab-sparglim:${{ matrix.sparglim-version }}
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/jupyterlab-sparglim:latest
     -
-      name: Build and push sparglim-server
-      id: docker_build_sparglim_server
+      name: Build and push sparglim-server_latest
+      id: docker_build_sparglim_server_latest
       uses: docker/build-push-action@v4
       with:
         build-args: |
-            SPARGLIM_VERSION=${{ matrix.sparglim-version }}
+            SPARGLIM_VERSION=${{ matrix.latest-version }}
         context: .
         platforms: linux/amd64,linux/arm64/v8
         file: ./docker/Dockerfile.sparglim-server
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/sparglim-server:${{ matrix.sparglim-version }}
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/sparglim-server:latest
