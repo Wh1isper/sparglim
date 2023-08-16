@@ -24,7 +24,7 @@ kubectl create clusterrolebinding serviceaccounts-cluster-admin
 
 ```
 # In project root
-kubectl apply -f example/sparglim-server/k8s
+kubectl apply -f examples/sparglim-server/k8s
 ```
 
 Check pod is running:
@@ -41,7 +41,6 @@ spark-connect-server-6c5a798995af404f-exec-3   1/1     Running   0          52s
 
 Access SparkUI:
 `http://<master-ip>:30040`
-
 
 # Connect it with `sparglim`
 

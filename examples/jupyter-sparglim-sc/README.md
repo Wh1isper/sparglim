@@ -24,8 +24,8 @@ kubectl create clusterrolebinding serviceaccounts-cluster-admin
 
 ```
 # In project root
-kubectl apply -f example/jupyter-sparglim-sc/k8s/jupyter-sparglim/
-kubectl apply -f example/jupyter-sparglim-sc/k8s/sparglim-server/
+kubectl apply -f examples/jupyter-sparglim-sc/k8s/jupyter-sparglim/
+kubectl apply -f examples/jupyter-sparglim-sc/k8s/sparglim-server/
 ```
 
 Check pod is running:

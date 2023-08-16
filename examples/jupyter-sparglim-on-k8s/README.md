@@ -24,7 +24,7 @@ kubectl create clusterrolebinding serviceaccounts-cluster-admin
 
 ```
 # In project root
-kubectl apply -f example/jupyter-sparglim-on-k8s/k8s
+kubectl apply -f examples/jupyter-sparglim-on-k8s/k8s
 ```
 
 Check pod is running:
@@ -75,7 +75,6 @@ Test it:
 ```python
 %sql SHOW TABLES;
 ```
-
 
 When SparkSession created, check executor is up: `kubectl get pod -n sparglim`
 
