@@ -49,6 +49,7 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         context: .
+        platforms: linux/amd64,linux/arm64/v8
         file: ./docker/Dockerfile.jupyterlab-sparglim
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/jupyterlab-sparglim:${{  github.ref_name }}
@@ -58,6 +59,7 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         context: .
+        platforms: linux/amd64,linux/arm64/v8
         file: ./docker/Dockerfile.sparglim-server
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/sparglim-server:${{  github.ref_name }}
@@ -70,6 +72,7 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         context: .
+        platforms: linux/amd64,linux/arm64/v8
         file: ./docker/Dockerfile.jupyterlab-sparglim
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/jupyterlab-sparglim:latest
@@ -80,6 +83,7 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         context: .
+        platforms: linux/amd64,linux/arm64/v8
         file: ./docker/Dockerfile.sparglim-server
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/sparglim-server:latest
