@@ -11,7 +11,6 @@ jobs:
     strategy:
         fail-fast: false
         matrix:
-          platforms: ["linux/amd64", "linux/arm64/v8"]
           latest-version: ["0.1.4"]
 
     runs-on: ubuntu-latest
@@ -39,7 +38,7 @@ jobs:
         context: .
         build-args: |
             SPARGLIM_VERSION=${{ matrix.latest-version }}
-        platforms: ${{ matrix.platforms }}
+        platforms: linux/amd64,linux/arm64/v8
         file: ./docker/Dockerfile.jupyterlab-sparglim
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/jupyterlab-sparglim:latest
@@ -51,7 +50,7 @@ jobs:
         build-args: |
             SPARGLIM_VERSION=${{ matrix.latest-version }}
         context: .
-        platforms: ${{ matrix.platforms }}
+        platforms: linux/amd64,linux/arm64/v8
         file: ./docker/Dockerfile.sparglim-server
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/sparglim-server:latest
