@@ -1,4 +1,4 @@
-FROM wh1isper/spark-connector-server:3.5.0
+FROM wh1isper/spark-connector-server:3.4.1
 
 ARG SPARGLIM_VERSION
 
