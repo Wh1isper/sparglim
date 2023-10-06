@@ -31,6 +31,30 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     -
+      name: Build and push jupyterlab-sparglim
+      id: docker_build_jupyterlab_sparglim
+      uses: docker/build-push-action@v4
+      with:
+        build-args: |
+            SPARGLIM_VERSION=${{ matrix.latest-version }}
+        context: .
+        platforms: linux/amd64,linux/arm64/v8
+        file: ./docker/Dockerfile.jupyterlab-sparglim
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/jupyterlab-sparglim:${{ matrix.latest-version }}
+    -
+      name: Build and push sparglim-server
+      id: docker_build_sparglim_server
+      uses: docker/build-push-action@v4
+      with:
+        build-args: |
+            SPARGLIM_VERSION=${{ matrix.latest-version }}
+        context: .
+        platforms: linux/amd64,linux/arm64/v8
+        file: ./docker/Dockerfile.sparglim-server
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/sparglim-server:${{ matrix.latest-version }}
+    -
       name: Build and push jupyterlab-sparglim_latest
       id: docker_build_jupyterlab_sparglim_latest
       uses: docker/build-push-action@v4
