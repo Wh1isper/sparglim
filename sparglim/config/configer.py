@@ -13,9 +13,10 @@ from kubernetes.config.incluster_config import SERVICE_TOKEN_FILENAME
 from sparglim.config.k8s import INCLUSTER, get_k8s_config, get_namespace
 from sparglim.exceptions import AlreadyConfiguredError, UnconfigurableError
 from sparglim.log import logger
-from sparglim.utils import get_host_ip
+from sparglim.utils import get_host_ip, get_spark_version
 
 ConfigEnvMapper = Dict[str, Tuple[Union[Iterable, str], Optional[str]]]
+SPARK_VERSION = get_spark_version() or "3.4.1"  # Assume 3.4.1 if not found
 
 
 class Config(UserDict):
@@ -53,15 +54,24 @@ class SparkEnvConfiger:
         "spark.ui.port": ("SPARGLIM_UI_PORT", None),
     }
     _s3 = {
-        "spark.hadoop.fs.s3a.access.key": (["S3_ACCESS_KEY", "AWS_ACCESS_KEY_ID"], None),
-        "spark.hadoop.fs.s3a.secret.key": (["S3_SECRET_KEY", "AWS_SECRET_ACCESS_KEY"], None),
+        "spark.hadoop.fs.s3a.access.key": (
+            ["S3_ACCESS_KEY", "AWS_ACCESS_KEY_ID"],
+            None,
+        ),
+        "spark.hadoop.fs.s3a.secret.key": (
+            ["S3_SECRET_KEY", "AWS_SECRET_ACCESS_KEY"],
+            None,
+        ),
         "spark.hadoop.fs.s3a.endpoint": ("S3_ENTRY_POINT", None),
         "spark.hadoop.fs.s3a.endpoint.region": (
             ["S3_ENTRY_POINT_REGION", "AWS_DEFAULT_REGION"],
             None,
         ),
         "spark.hadoop.fs.s3a.path.style.access": ("S3_PATH_STYLE_ACCESS", None),
-        "spark.hadoop.fs.s3a.bucket.all.committer.magic.enabled": ("S3_MAGIC_COMMITTER", None),
+        "spark.hadoop.fs.s3a.bucket.all.committer.magic.enabled": (
+            "S3_MAGIC_COMMITTER",
+            None,
+        ),
     }
     _kerberos = {
         "spark.kerberos.keytab": ("SPARGIM_KERBEROS_KEYTAB", None),
@@ -76,8 +86,14 @@ class SparkEnvConfiger:
     }
     _connect_server = {
         "spark.connect.grpc.binding.port": ("SPARGLIM_CONNECT_SERVER_PORT", None),
-        "spark.connect.grpc.arrow.maxBatchSize": ("SPARGLIM_CONNECT_GRPC_ARROW_MAXBS", None),
-        "spark.connect.grpc.maxInboundMessageSize": ("SPARGLIM_CONNECT_GRPC_MAXIM", None),
+        "spark.connect.grpc.arrow.maxBatchSize": (
+            "SPARGLIM_CONNECT_GRPC_ARROW_MAXBS",
+            None,
+        ),
+        "spark.connect.grpc.maxInboundMessageSize": (
+            "SPARGLIM_CONNECT_GRPC_MAXIM",
+            None,
+        ),
     }
     #  FIXME: Does k8s inject more info into pod? So that we can use them directly
     _k8s = {
@@ -88,9 +104,12 @@ class SparkEnvConfiger:
         # set SPARGLIM_K8S_IMAGE for image:tag
         "spark.kubernetes.container.image": (
             "SPARGLIM_K8S_IMAGE",
-            "wh1isper/spark-executor:3.4.1",
+            f"wh1isper/spark-executor:{SPARK_VERSION}",
         ),
-        "spark.kubernetes.container.image.pullSecrets": ("SPARGLIM_K8S_IMAGE_PULL_SECRETS", None),
+        "spark.kubernetes.container.image.pullSecrets": (
+            "SPARGLIM_K8S_IMAGE_PULL_SECRETS",
+            None,
+        ),
         "spark.kubernetes.container.image.pullPolicy": (
             "SPARGLIM_K8S_IMAGE_PULL_POLICY",
             "IfNotPresent",
@@ -111,8 +130,14 @@ class SparkEnvConfiger:
         "spark.driver.bindAddress": ("SPARGLIM_DRIVER_BINDADDRESS", "0.0.0.0"),
         "spark.kubernetes.driver.pod.name": ("SPARGLIM_DRIVER_POD_NAME", None),
         # Config for executor
-        "spark.kubernetes.executor.cores": ("SPARGLIM_K8S_EXECUTOR_REQUEST_CORES", None),
-        "spark.kubernetes.executor.limit.cores": ("SPARGLIM_K8S_EXECUTOR_LIMIT_CORES", None),
+        "spark.kubernetes.executor.cores": (
+            "SPARGLIM_K8S_EXECUTOR_REQUEST_CORES",
+            None,
+        ),
+        "spark.kubernetes.executor.limit.cores": (
+            "SPARGLIM_K8S_EXECUTOR_LIMIT_CORES",
+            None,
+        ),
         "spark.executor.memory": ("SPARGLIM_EXECUTOR_REQUEST_MEMORY", "512m"),
         "spark.executor.memoryOverhead": ("SPARGLIM_EXECUTOR_LIMIT_MEMORY", None),
         # GPU
