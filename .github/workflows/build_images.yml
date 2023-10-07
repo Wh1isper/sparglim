@@ -1,4 +1,4 @@
-name: Build Docker Image manually(Old version)
+name: Build History Version Docker Images
 
 on:
     workflow_dispatch: {}
