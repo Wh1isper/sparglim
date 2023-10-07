@@ -1,4 +1,4 @@
-FROM wh1isper/spark-connector-server:3.4.1
+FROM wh1isper/spark-connector-server:3.5.0
 
 COPY --chown=executor:executor ./ ./sparglim
 RUN pip install --no-cache-dir ./sparglim
