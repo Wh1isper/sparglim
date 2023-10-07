@@ -1,5 +1,5 @@
-
-FROM wh1isper/pyspark-app-base:3.5.0
+ARG SPARK_VERSION=3.5.0
+FROM wh1isper/pyspark-app-base:${SPARK_VERSION}
 
 USER root
 RUN  apt-get -y update && apt-get -y upgrade && apt-get install -y tini \
