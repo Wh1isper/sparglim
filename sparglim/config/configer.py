@@ -125,7 +125,6 @@ class SparkEnvConfiger:
             "sparglim-executor",
         ),
         # INCLUSTER, work with k8s filedRef.fieldPath, see example
-        # TODO: There is a simple example, but no docs yet...
         "spark.driver.host": ("SPARGLIM_DRIVER_HOST", None),
         "spark.driver.bindAddress": ("SPARGLIM_DRIVER_BINDADDRESS", "0.0.0.0"),
         "spark.kubernetes.driver.pod.name": ("SPARGLIM_DRIVER_POD_NAME", None),
