@@ -1,7 +1,12 @@
-name: Build Latest Docker Image manually
+name: Build Latest Docker Image
 
 on:
     workflow_dispatch: {}
+    workflow_run:
+        workflows: ["Upload Python Package"]
+        branches: ["master"]
+        types:
+            - completed
 
 permissions:
   contents: read
@@ -11,7 +16,8 @@ jobs:
     strategy:
         fail-fast: false
         matrix:
-          latest-version: ["0.1.4"]
+          spark-version: ["3.4.1"]
+          latest-version: ["0.1.5"]
 
     runs-on: ubuntu-latest
 
@@ -37,11 +43,12 @@ jobs:
       with:
         build-args: |
             SPARGLIM_VERSION=${{ matrix.latest-version }}
+            SPARK_VERSION=${{ matrix.spark-version }}
         context: .
         platforms: linux/amd64,linux/arm64/v8
         file: ./docker/Dockerfile.jupyterlab-sparglim
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/jupyterlab-sparglim:${{ matrix.latest-version }}
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/jupyterlab-sparglim:${{ matrix.latest-version }}-spark-${{ matrix.spark-version }}
     -
       name: Build and push sparglim-server
       id: docker_build_sparglim_server
@@ -49,11 +56,12 @@ jobs:
       with:
         build-args: |
             SPARGLIM_VERSION=${{ matrix.latest-version }}
+            SPARK_VERSION=${{ matrix.spark-version }}
         context: .
         platforms: linux/amd64,linux/arm64/v8
         file: ./docker/Dockerfile.sparglim-server
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/sparglim-server:${{ matrix.latest-version }}
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/sparglim-server:${{ matrix.latest-version }}-spark-${{ matrix.spark-version }}
     -
       name: Build and push jupyterlab-sparglim_latest
       id: docker_build_jupyterlab_sparglim_latest
@@ -62,6 +70,7 @@ jobs:
         context: .
         build-args: |
             SPARGLIM_VERSION=${{ matrix.latest-version }}
+            SPARK_VERSION=${{ matrix.spark-version }}
         platforms: linux/amd64,linux/arm64/v8
         file: ./docker/Dockerfile.jupyterlab-sparglim
         push: true
@@ -73,6 +82,7 @@ jobs:
       with:
         build-args: |
             SPARGLIM_VERSION=${{ matrix.latest-version }}
+            SPARK_VERSION=${{ matrix.spark-version }}
         context: .
         platforms: linux/amd64,linux/arm64/v8
         file: ./docker/Dockerfile.sparglim-server

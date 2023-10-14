@@ -52,6 +52,13 @@ class SparkEnvConfiger:
         "spark.submit.deployMode": ("SPAGLIM_DEPLOY_MODE", "client"),
         "spark.scheduler.mode": ("SPARGLIM_SCHEDULER_MODE", "FAIR"),
         "spark.ui.port": ("SPARGLIM_UI_PORT", None),
+        "spark.driver.defaultJavaOptions": ("SPARGLIM_DRIVER_JAVA_OPTIONS", None),
+        "spark.executor.defaultJavaOptions": ("SPARGLIM_EXECUTOR_JAVA_OPTIONS", None),
+        "spark.driver.extraJavaOptions": ("SPARGLIM_DRIVER_JAVA_EXTRA_OPTIONS", None),
+        "spark.executor.extraJavaOptions": (
+            "SPARGLIM_EXECUTOR_JAVA_EXTRA_OPTIONS",
+            None,
+        ),
     }
     _s3 = {
         "spark.hadoop.fs.s3a.access.key": (
@@ -125,7 +132,6 @@ class SparkEnvConfiger:
             "sparglim-executor",
         ),
         # INCLUSTER, work with k8s filedRef.fieldPath, see example
-        # TODO: There is a simple example, but no docs yet...
         "spark.driver.host": ("SPARGLIM_DRIVER_HOST", None),
         "spark.driver.bindAddress": ("SPARGLIM_DRIVER_BINDADDRESS", "0.0.0.0"),
         "spark.kubernetes.driver.pod.name": ("SPARGLIM_DRIVER_POD_NAME", None),

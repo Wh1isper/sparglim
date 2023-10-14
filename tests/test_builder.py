@@ -22,9 +22,27 @@ def config_builder():
 def verify_spark(spark, config):
     df = spark.createDataFrame(
         [
-            Row(a=1, b=2.0, c="string1", d=date(2000, 1, 1), e=datetime(2000, 1, 1, 12, 0)),
-            Row(a=2, b=3.0, c="string2", d=date(2000, 2, 1), e=datetime(2000, 1, 2, 12, 0)),
-            Row(a=4, b=5.0, c="string3", d=date(2000, 3, 1), e=datetime(2000, 1, 3, 12, 0)),
+            Row(
+                a=1,
+                b=2.0,
+                c="string1",
+                d=date(2000, 1, 1),
+                e=datetime(2000, 1, 1, 12, 0),
+            ),
+            Row(
+                a=2,
+                b=3.0,
+                c="string2",
+                d=date(2000, 2, 1),
+                e=datetime(2000, 1, 2, 12, 0),
+            ),
+            Row(
+                a=4,
+                b=5.0,
+                c="string3",
+                d=date(2000, 3, 1),
+                e=datetime(2000, 1, 3, 12, 0),
+            ),
         ]
     )
     df.show()
@@ -105,6 +123,36 @@ def test_create(config_builder: ConfigBuilder):
     spark = config_builder.get_or_create()
     assert old_spark != spark
     verify_spark(spark, config_builder.get_all())
+
+
+basic_env_cases = [
+    (
+        {
+            "SPARGLIM_DRIVER_JAVA_OPTIONS": "-DDEFAULT_D_JAVA_OPTIONS=true",
+            "SPARGLIM_EXECUTOR_JAVA_OPTIONS": "-DDEFAULT_E_JAVA_OPTIONS=true",
+            "SPARGLIM_DRIVER_JAVA_EXTRA_OPTIONS": "-DEXTRA_D_JAVA_OPTIONS=true",
+            "SPARGLIM_EXECUTOR_JAVA_EXTRA_OPTIONS": "-DEXTRA_E_JAVA_OPTIONS=true",
+        },
+        {
+            "spark.driver.defaultJavaOptions": "-DDEFAULT_D_JAVA_OPTIONS=true",
+            "spark.executor.defaultJavaOptions": "-DDEFAULT_E_JAVA_OPTIONS=true",
+            "spark.driver.extraJavaOptions": "-DEXTRA_D_JAVA_OPTIONS=true",
+            "spark.executor.extraJavaOptions": "-DEXTRA_E_JAVA_OPTIONS=true",
+        },
+    ),
+]
+
+
+@pytest.mark.parametrize("env_mapper, expect_mapper", basic_env_cases)
+def test_basic(
+    config_builder: ConfigBuilder,
+    monkeypatch,
+    env_mapper: Dict[str, str],
+    expect_mapper: Dict[str, str],
+):
+    config_builder = patch_env(config_builder, monkeypatch, env_mapper)
+    config_builder.config_local()
+    assert_contain(config_builder.get_all(), expect_mapper)
 
 
 s3_env_cases = [
@@ -235,7 +283,10 @@ def test_k8s_no_config(config_builder: ConfigBuilder):
 
 
 connect_client_mapper = [
-    ({"SPARGLIM_REMOTE": "sc://localhost:9999"}, {"spark.remote": "sc://localhost:9999"}),
+    (
+        {"SPARGLIM_REMOTE": "sc://localhost:9999"},
+        {"spark.remote": "sc://localhost:9999"},
+    ),
     (
         {
             # Test default value
