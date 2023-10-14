@@ -17,6 +17,10 @@ Default config:
 - `SPAGLIM_DEPLOY_MODE`: `spark.submit.deployMode`, default: `client`.
 - `SPARGLIM_SCHEDULER_MODE`: `spark.scheduler.mode`, default: `FAIR`.
 - `SPARGLIM_UI_PORT`: `spark.ui.port`, default: `None`.
+- `SPARGLIM_DRIVER_JAVA_OPTIONS`: `spark.driver.defaultJavaOptions`, default: `None`.
+- `SPARGLIM_EXECUTOR_JAVA_OPTIONS`: `spark.executor.defaultJavaOptions`, default: `None`.
+- `SPARGLIM_DRIVER_JAVA_EXTRA_OPTIONS`: `spark.driver.extraJavaOptions`, default: `None`.
+- `SPARGLIM_EXECUTOR_JAVA_EXTRA_OPTIONS`: `spark.executor.extraJavaOptions`, default: `None`.
 - `S3_ACCESS_KEY` or `AWS_ACCESS_KEY_ID`: `spark.hadoop.fs.s3a.access.key`, default: `None`.
 - `S3_SECRET_KEY` or `AWS_SECRET_ACCESS_KEY`: `spark.hadoop.fs.s3a.secret.key`, default: `None`.
 - `S3_ENTRY_POINT`: `spark.hadoop.fs.s3a.endpoint`, default: `None`.
@@ -32,6 +36,10 @@ Default config:
 - `SPAGLIM_DEPLOY_MODE`: `spark.submit.deployMode`, default: `client`.
 - `SPARGLIM_SCHEDULER_MODE`: `spark.scheduler.mode`, default: `FAIR`.
 - `SPARGLIM_UI_PORT`: `spark.ui.port`, default: `None`.
+- `SPARGLIM_DRIVER_JAVA_OPTIONS`: `spark.driver.defaultJavaOptions`, default: `None`.
+- `SPARGLIM_EXECUTOR_JAVA_OPTIONS`: `spark.executor.defaultJavaOptions`, default: `None`.
+- `SPARGLIM_DRIVER_JAVA_EXTRA_OPTIONS`: `spark.driver.extraJavaOptions`, default: `None`.
+- `SPARGLIM_EXECUTOR_JAVA_EXTRA_OPTIONS`: `spark.executor.extraJavaOptions`, default: `None`.
 
 `config_s3()` can config following:
 
