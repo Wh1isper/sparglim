@@ -72,7 +72,7 @@ class Daemon:
                 f"org.apache.spark:spark-connect_{SCALA_VERSION}:{SPARK_VERSION}"
             )
         self.builder = SparkEnvConfiger().config_connect_server(
-            self.mode, custom_config=custom_config, k8s_config_path=k8s_config_path
+            self.mode, custom_config=self.custom_config, k8s_config_path=k8s_config_path
         )
 
         self._tailer: Optional[Tailer] = None
