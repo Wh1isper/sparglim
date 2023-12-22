@@ -1,5 +1,6 @@
 #  Copyright (c) 2023 Wh1isper
 #  Licensed under the BSD 3-Clause License
+import json
 import os
 import signal
 
@@ -12,9 +13,12 @@ from sparglim.server.daemon import Daemon
 @click.command()
 @click.option("--mode", default=None)
 @click.option("--root_dir", default="./")
-def start(mode, root_dir):
+@click.option("--custom_config", default=None)
+def start(mode, root_dir, custom_config):
+    if custom_config is not None:
+        custom_config = json.loads(custom_config)
     if mode:
-        Daemon(mode=mode, root_dir=root_dir).start_and_daemon()
+        Daemon(mode=mode, root_dir=root_dir, custom_config=custom_config).start_and_daemon()
     else:
         Daemon(root_dir=root_dir).start_and_daemon()
 

@@ -33,3 +33,6 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
+            - name: SPARGLIM_SERVER_CUSTOM_CONFIG
+              # json string for custom config, see https://spark.apache.org/docs/latest/configuration.html
+              value: "{}"
