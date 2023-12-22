@@ -17,7 +17,7 @@ jobs:
         fail-fast: false
         matrix:
           spark-version: ["3.4.1"]
-          latest-version: ["0.1.5"]
+          latest-version: ["0.2.0"]
 
     runs-on: ubuntu-latest
 
