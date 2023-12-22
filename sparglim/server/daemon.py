@@ -1,5 +1,6 @@
 #  Copyright (c) 2023 Wh1isper
 #  Licensed under the BSD 3-Clause License
+import json
 import os
 import signal
 import subprocess
@@ -9,7 +10,7 @@ import time
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 import psutil
 
@@ -31,6 +32,7 @@ class Daemon:
     # Stop the daemon when the KeyboardInterrupt is raised
     # This will not start duplicate connect server, unless using different root_dir and port
     ENV_MASTER_MODE = "SPARGLIM_SERVER_MODE"
+    ENV_CUSTOM_CONFIG = "SPARGLIM_SERVER_CUSTOM_CONFIG"
     DEFAULT_MODE = "local"
     SPARK_IDENT_STRING = "sparglim-connect-server"  # SPARK_IDENT_STRING
 
@@ -40,8 +42,10 @@ class Daemon:
         root_dir: str = "./",
         *,
         k8s_config_path: Optional[str] = None,
+        custom_config: Optional[Dict[str, Any]] = None,
     ):
         self.mode = mode or os.getenv(self.ENV_MASTER_MODE, self.DEFAULT_MODE)
+        self.custom_config = custom_config or json.loads(os.getenv(self.ENV_CUSTOM_CONFIG, "{}"))
 
         self.root_dir = Path(root_dir)
 
@@ -68,7 +72,7 @@ class Daemon:
                 f"org.apache.spark:spark-connect_{SCALA_VERSION}:{SPARK_VERSION}"
             )
         self.builder = SparkEnvConfiger().config_connect_server(
-            self.mode, k8s_config_path=k8s_config_path
+            self.mode, custom_config=custom_config, k8s_config_path=k8s_config_path
         )
 
         self._tailer: Optional[Tailer] = None
