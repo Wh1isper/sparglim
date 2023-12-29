@@ -8,7 +8,7 @@ RUN python -m build
 FROM wh1isper/spark-connector-server:3.4.1
 
 COPY --from=builder /source/dist/*.whl /tmp/
-RUN pip install --no-cache-dir $(echo /tmp/*.whl)
+RUN for f in $(echo /tmp/*.whl); do pip install --no-cache-dir $f; done
 
 ENTRYPOINT [ "tini" ,"--"]
 CMD [ "sparglim-server", "start" ]
