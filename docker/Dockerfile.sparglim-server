@@ -7,10 +7,10 @@ RUN python -m build
 
 FROM wh1isper/spark-connector-server:3.4.1
 
-COPY --from=builder /source/dist/*.whl /tmp/
+COPY --from=builder --chown=executor:executor /source/dist/*.whl /tmp/
 RUN for f in $(echo /tmp/*.whl); do pip install --no-cache-dir $f; done
 
-ENTRYPOINT [ "tini" ,"--"]
-CMD [ "sparglim-server", "start" ]
+# ENTRYPOINT [ "tini" ,"--"]
+# CMD [ "sparglim-server", "start" ]
 
 # docker buildx build --platform linux/amd64,linux/arm64/v8 -t wh1isper/sparglim-server:latest -f docker/Dockerfile.sparglim-server --push .
