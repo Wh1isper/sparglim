@@ -1,0 +1,41 @@
+name: Testing docker image build
+
+on:
+  pull_request:
+    branches: ["master", "main"]
+
+jobs:
+  deploy:
+    strategy:
+      fail-fast: true
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # Build docker images
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      -
+        name: Build and push jupyterlab-sparglim_latest
+        id: docker_build_jupyterlab_sparglim_latest
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64/v8
+          file: ./docker/Dockerfile.jupyterlab-sparglim
+          push: false
+          tags: jupyterlab-sparglim:latest
+      -
+        name: Build and push sparglim-server_latest
+        id: docker_build_sparglim_server_latest
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64/v8
+          file: ./docker/Dockerfile.sparglim-server
+          push: false
+          tags: sparglim-server:latest
