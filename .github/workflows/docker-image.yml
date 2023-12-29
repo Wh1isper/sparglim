@@ -20,8 +20,8 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       -
-        name: Build and push jupyterlab-sparglim_latest
-        id: docker_build_jupyterlab_sparglim_latest
+        name: Testing build jupyterlab-sparglim image
+        id: docker_build_jupyterlab_sparglim
         uses: docker/build-push-action@v4
         with:
           context: .
@@ -30,8 +30,8 @@ jobs:
           push: false
           tags: jupyterlab-sparglim:latest
       -
-        name: Build and push sparglim-server_latest
-        id: docker_build_sparglim_server_latest
+        name: Testing build sparglim-server image
+        id: docker_build_sparglim_server
         uses: docker/build-push-action@v4
         with:
           context: .

@@ -36,7 +36,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
-        name: Build and push jupyterlab-sparglim
+        name: Build and push tagged jupyterlab-sparglim image
         id: docker_build_jupyterlab_sparglim
         uses: docker/build-push-action@v4
         with:
@@ -46,7 +46,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/jupyterlab-sparglim:${{ github.ref_name }}
       -
-        name: Build and push sparglim-server
+        name: Build and push tagged sparglim-server image
         id: docker_build_sparglim_server
         uses: docker/build-push-action@v4
         with:
