@@ -1,8 +1,14 @@
+FROM python:3.10.12-slim-bookworm as builder
+
+RUN pip install build twine hatch
+COPY . /source
+WORKDIR /source
+RUN python -m build
+
 FROM wh1isper/spark-connector-server:3.4.1
 
-ARG SPARGLIM_VERSION
-
-RUN pip install sparglim==${SPARGLIM_VERSION}
+COPY --from=builder /source/dist/*.whl /tmp/
+RUN pip install --no-cache-dir $(echo /tmp/*.whl)
 
 ENTRYPOINT [ "tini" ,"--"]
 CMD [ "sparglim-server", "start" ]

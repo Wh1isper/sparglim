@@ -1,3 +1,10 @@
+FROM python:3.10.12-slim-bookworm as builder
+
+RUN pip install build twine hatch
+COPY . /source
+WORKDIR /source
+RUN python -m build
+
 FROM wh1isper/pyspark-app-base:3.4.1
 
 USER root
@@ -5,8 +12,12 @@ RUN  apt-get -y update && apt-get -y upgrade && apt-get install -y gcc python3-d
     && rm -rf /var/lib/apt/lists/* &&  rm -rf /root/.cache && rm -rf /var/cache/apt/*
 
 USER application
-ARG SPARGLIM_VERSION
-RUN pip install --no-cache-dir jupyterlab sparglim[all]==${SPARGLIM_VERSION}
+COPY --from=builder /source/dist/*.whl /tmp/
+
+RUN pip install --no-cache-dir $(echo /tmp/*.whl)[all]
+
+# As user application
+RUN pip install --no-cache-dir jupyterlab
 
 ENTRYPOINT ["tini","--","jupyter-lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--IdentityProvider.token=''"]
 EXPOSE 8888
