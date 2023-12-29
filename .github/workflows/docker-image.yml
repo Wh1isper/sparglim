@@ -25,7 +25,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          platforms: linux/amd64,linux/arm64/v8
+          platforms: linux/amd64
           file: ./docker/Dockerfile.jupyterlab-sparglim
           push: false
           tags: jupyterlab-sparglim:latest
@@ -35,7 +35,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          platforms: linux/amd64,linux/arm64/v8
+          platforms: linux/amd64
           file: ./docker/Dockerfile.sparglim-server
           push: false
           tags: sparglim-server:latest
