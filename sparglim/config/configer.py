@@ -153,7 +153,7 @@ class SparkEnvConfiger:
             "/opt/spark/examples/src/main/scripts/getGpusResources.sh",
         ),
         "spark.executor.resource.gpu.amount": ("SPARGLIM_K8S_GPU_AMOUNT", None),
-        "spark.rapids.sql.enabled": ("SPARGLIM_RAPIDS_SQL_ENABLED", None)
+        "spark.rapids.sql.enabled": ("SPARGLIM_RAPIDS_SQL_ENABLED", None),
         # TODO: Mount config
         #       Given that it is highly customizable
         #       Not sure when it will be supported
