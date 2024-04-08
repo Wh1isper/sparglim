@@ -9,7 +9,7 @@ repos:
   #       verbose: true
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v4.6.0
     hooks:
       - id: end-of-file-fixer
       - id: check-case-conflict
